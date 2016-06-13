@@ -2,22 +2,26 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
   Text,
-  TouchableNativeFeedback,
   View,
 } from 'react-native';
+import Touchable from '../common/F8Touchable';
+import createStyleSheet from '../common/createStyleSheet';
 import { push } from '../actions/navigation';
 
 class Home extends React.Component {
   render() {
     return (
-      <TouchableNativeFeedback
-        style={{ flex: 1 }}
-        onPress={() => this.props.push({ key: `index${Math.random()}` })}
-      >
-        <View style={{ flex: 1 }}>
-          <Text>{this.props.text}</Text>
-        </View>
-      </TouchableNativeFeedback>
+      <View style={styles.container}>
+        <Touchable
+          onPress={() => this.handleBtnPress()}
+        >
+          <View
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>GO</Text>
+          </View>
+        </Touchable>
+      </View>
     );
   }
 }
@@ -26,5 +30,37 @@ Home.propTypes = {
   text: PropTypes.string,
   push: PropTypes.func,
 };
+
+const styles = createStyleSheet({
+  container: {
+    flex: 1,
+    backgroundColor: '#fafafa',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  button: {
+    height: 150,
+    width: 150,
+    alignItems: 'center',
+    backgroundColor: '#37474f',
+    borderRadius: 150,
+    margin: 16,
+    padding: 8,
+    elevation: 2,
+    shadowColor: 'grey',
+    shadowRadius: 2,
+    shadowOpacity: 0.7,
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+  },
+  buttonText: {
+    flex: 1,
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+});
 
 export default connect(null, { push })(Home);
