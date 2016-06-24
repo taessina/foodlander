@@ -4,36 +4,24 @@ import {
   Text,
   View,
 } from 'react-native';
-import Touchable from '../common/F8Touchable';
 import createStyleSheet from '../common/createStyleSheet';
-import { location } from '../actions';
+import { push } from '../actions';
+import MapView from 'react-native-maps';
 
-class Home extends React.Component {
-  handleBtnPress() {
-    this.props.location();
-  }
 
+class Place extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Touchable
-          style={styles.button}
-          onPress={() => this.handleBtnPress()}
-        >
-          <View
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>GO</Text>
-          </View>
-        </Touchable>
+      <View>
+        <Text>{this.props.name}</Text>
       </View>
     );
   }
 }
 
-Home.propTypes = {
+Place.propTypes = {
   text: PropTypes.string,
-  location: PropTypes.func,
+  push: PropTypes.func,
 };
 
 const styles = createStyleSheet({
@@ -42,6 +30,11 @@ const styles = createStyleSheet({
     backgroundColor: '#fafafa',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  bottomContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   button: {
     height: 150,
@@ -66,6 +59,16 @@ const styles = createStyleSheet({
     fontSize: 14,
     fontWeight: '500',
   },
+  map: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    height: 300,
+  },
 });
 
-export default connect(null, { location })(Home);
+export default connect((state) => ({
+  name: state.location.name,
+}), { push })(Place);

@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import createStyleSheet from './common/createStyleSheet';
 import { back } from './actions/navigation';
 import Home from './containers/Home';
+import Place from './containers/Place';
 
 let styles = {};
 
@@ -37,8 +38,12 @@ class FLNavigator extends React.Component {
   renderScene(props) {
     const sceneState = props.scene.navigationState;
 
-    if (sceneState.key.indexOf('index') !== -1) {
+    if (sceneState.key === 'index') {
       return <Home text={sceneState.key} />;
+    }
+
+    if (sceneState.key === 'place') {
+      return <Place />;
     }
     return <Text>404</Text>;
   }
