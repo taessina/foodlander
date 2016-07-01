@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Text,
   View,
+  Linking,
 } from 'react-native';
 import createStyleSheet from '../common/createStyleSheet';
 import Touchable from '../common/F8Touchable';
@@ -11,6 +12,17 @@ import MapView from 'react-native-maps';
 
 
 class Place extends React.Component {
+  handleNavigateBtnPress() {
+    const url = `geo:${this.props.lat},${this.props.lng}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (!supported) {
+        console.log('Can\'t handle url: ' + url);
+      } else {
+        return Linking.openURL(url);
+      }
+    }).catch(err => console.error('An error occurred', err));
+  }
+
   render() {
     return (
       <View>
@@ -34,21 +46,12 @@ class Place extends React.Component {
         </View>
         <View style={styles.buttonContainer}>
           <Touchable
-            onPress={() => this.handleBtnPress()}
+            onPress={() => this.handleNavigateBtnPress()}
           >
             <View
               style={styles.button}
             >
               <Text style={styles.buttonText}>Navigate</Text>
-            </View>
-          </Touchable>
-          <Touchable
-            onPress={() => this.handleBtnPress()}
-          >
-            <View
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>Retry</Text>
             </View>
           </Touchable>
         </View>
