@@ -103,7 +103,6 @@ const styles = createStyleSheet({
     backgroundColor: '#37474f',
     borderRadius: 20,
     margin: 16,
-    padding: 8,
     elevation: 2,
     shadowColor: 'grey',
     shadowRadius: 2,
@@ -114,11 +113,9 @@ const styles = createStyleSheet({
     },
   },
   buttonText: {
-    flex: 1,
     color: 'white',
     fontSize: 14,
     fontWeight: '500',
-    alignSelf: 'center',
   },
 });
 

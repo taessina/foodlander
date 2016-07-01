@@ -17,7 +17,6 @@ class Home extends React.Component {
     return (
       <View style={styles.container}>
         <Touchable
-          style={styles.button}
           onPress={() => this.handleBtnPress()}
         >
           <View
@@ -47,6 +46,7 @@ const styles = createStyleSheet({
     height: 150,
     width: 150,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#37474f',
     borderRadius: 150,
     margin: 16,
@@ -61,7 +61,6 @@ const styles = createStyleSheet({
     },
   },
   buttonText: {
-    flex: 1,
     color: 'white',
     fontSize: 14,
     fontWeight: '500',
