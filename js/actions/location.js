@@ -1,4 +1,4 @@
-import { push } from '../actions';
+import { actionCreators as navActionCreators } from '../ducks/navigation';
 
 const API_BASE = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670,151.1957&radius=500&types=food&name=cruise&key=AIzaSyBBCaIC1xyjWjuDuKbjBhPFahpQk7yzQhU';
 
@@ -14,7 +14,7 @@ export const location = () => {
         ...json,
         type: 'GET_LOCATION',
       });
-      dispatch(push({ key: 'place' }));
+      dispatch(navActionCreators.doNavigatePush({ key: 'place' }));
     });
   };
 };

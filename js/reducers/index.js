@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import navigation from './navigation';
+import navigation from '../ducks/navigation';
 import location from './location';
 
 // glue all the reducers together into 1 root reducer

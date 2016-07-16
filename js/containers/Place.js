@@ -40,7 +40,7 @@ class Place extends React.Component {
             }}
           >
             <MapView.Marker
-              coordinate={{latitude: this.props.lat, longitude: this.props.lng}}
+              coordinate={{ latitude: this.props.lat, longitude: this.props.lng }}
             />
           </MapView>
         </View>

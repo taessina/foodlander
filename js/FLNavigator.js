@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import createStyleSheet from './common/createStyleSheet';
-import { back } from './actions/navigation';
+import { actionCreators as navActionCreators } from './ducks/navigation';
 import Home from './containers/Home';
 import Place from './containers/Place';
 
@@ -28,7 +28,7 @@ class FLNavigator extends React.Component {
 
   handleBackButton() {
     if (this.props.navigationState.index > 0) { // TODO: Check if we can go back
-      this.props.back();
+      this.props.dispatch(navActionCreators.doNavigatePop());
       return true;
     }
 
@@ -36,7 +36,7 @@ class FLNavigator extends React.Component {
   }
 
   renderScene(props) {
-    const sceneState = props.scene.navigationState;
+    const sceneState = props.scene.route;
 
     if (sceneState.key === 'index') {
       return <Home text={sceneState.key} />;
@@ -54,10 +54,8 @@ class FLNavigator extends React.Component {
         style={styles.container}
         renderScene={props => this.renderScene(props)}
         navigationState={this.props.navigationState}
-        onNavigate={(action) => {
-          if (action.type === 'back') {
-            this.props.back();
-          }
+        onNavigateBack={() => {
+          this.props.dispatch(navActionCreators.doNavigatePop());
         }}
       />
     );
@@ -66,7 +64,7 @@ class FLNavigator extends React.Component {
 
 FLNavigator.propTypes = {
   navigationState: PropTypes.object,
-  back: PropTypes.func,
+  dispatch: PropTypes.func,
 };
 
 styles = createStyleSheet({
@@ -82,4 +80,4 @@ function select(store) {
   };
 }
 
-export default connect(select, { back })(FLNavigator);
+export default connect(select)(FLNavigator);
