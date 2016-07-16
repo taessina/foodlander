@@ -1,4 +1,3 @@
-// @flow
 import {
   NavigationExperimental,
 } from 'react-native';
@@ -7,7 +6,7 @@ const {
   StateUtils: NavigationStateUtils,
 } = NavigationExperimental;
 
-// *** Action Types ***
+/* Action Types */
 export const NAVIGATE = 'navigation/NAVIGATE';
 export const NAV_PUSH = 'navigation/NAV_PUSH';
 export const NAV_POP = 'navigation/NAV_POP';
@@ -15,13 +14,12 @@ export const NAV_JUMP_TO_KEY = 'navigation/NAV_JUMP_TO_KEY';
 export const NAV_JUMP_TO_INDEX = 'navigation/NAV_JUMP_TO_INDEX';
 export const NAV_RESET = 'navigation/NAV_RESET';
 
-// *** Action Creators ***
+/* Action Creators */
 export function doNavigatePush(state: Object|string): Object {
-  // eslint-disable-next-line no-param-reassign
-  state = typeof state === 'string' ? { key: state, title: state } : state;
+  const newState = typeof state === 'string' ? { key: state, title: state } : state;
   return {
     type: NAV_PUSH,
-    state,
+    state: newState,
   };
 }
 
@@ -53,16 +51,16 @@ export function doNavigateReset(routes: Array<Object>, index: number): Object {
   };
 }
 
-// *** Initial state ***
+/* Initial state */
 const initialNavState = {
-  key: 'FLNavigation',
+  key: 'Navigation',
   index: 0,
   routes: [
     { key: 'index' },
   ],
 };
 
-// *** Reducer ***
+/* Reducer */
 function reducer(state: NavigationState = initialNavState,
   action: NavigationAction): NavigationState {
   switch (action.type) {

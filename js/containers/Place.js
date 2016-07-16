@@ -7,9 +7,7 @@ import {
 } from 'react-native';
 import createStyleSheet from '../common/createStyleSheet';
 import Touchable from '../common/F8Touchable';
-import { push } from '../actions';
 import MapView from 'react-native-maps';
-
 
 class Place extends React.Component {
   handleNavigateBtnPress() {
@@ -64,7 +62,6 @@ Place.propTypes = {
   name: PropTypes.string,
   lat: PropTypes.number,
   lng: PropTypes.number,
-  push: PropTypes.func,
 };
 
 const styles = createStyleSheet({
@@ -126,4 +123,4 @@ export default connect((state) => ({
   name: state.location.name,
   lat: state.location.lat,
   lng: state.location.lng,
-}), { push })(Place);
+}))(Place);
