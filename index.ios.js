@@ -1,4 +1,4 @@
 import { AppRegistry } from 'react-native';
-import Root from './js/Root';
+import App from './src/App';
 
-AppRegistry.registerComponent('Foodlander', () => Root);
+AppRegistry.registerComponent('Foodlander', () => App);

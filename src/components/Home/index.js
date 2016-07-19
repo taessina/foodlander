@@ -6,11 +6,14 @@ import {
 } from 'react-native';
 import Touchable from '../common/F8Touchable';
 import createStyleSheet from '../common/createStyleSheet';
-import { location } from '../actions';
+import { actionCreators as placeActionCreators } from '../../ducks/place';
 
 class Home extends React.Component {
   handleBtnPress() {
-    this.props.location();
+    this.props.dispatch(placeActionCreators.doGetRandomPlace({
+      latitude: 3.139055,
+      longitude: 101.6144002,
+    }));
   }
 
   render() {
@@ -32,7 +35,7 @@ class Home extends React.Component {
 
 Home.propTypes = {
   text: PropTypes.string,
-  location: PropTypes.func,
+  dispatch: PropTypes.func,
 };
 
 const styles = createStyleSheet({
@@ -67,4 +70,4 @@ const styles = createStyleSheet({
   },
 });
 
-export default connect(null, { location })(Home);
+export default connect()(Home);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import FLApp from './FLApp';
-import configureStore from './store/configureStore';
+import Main from './Main';
+import configureStore from './stores/configureStore';
 
-export default class Root extends React.Component {
+export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -18,7 +18,7 @@ export default class Root extends React.Component {
     }
     return (
       <Provider store={this.state.store}>
-        <FLApp />
+        <Main />
       </Provider>
     );
   }

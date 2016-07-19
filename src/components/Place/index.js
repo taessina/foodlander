@@ -11,7 +11,8 @@ import MapView from 'react-native-maps';
 
 class Place extends React.Component {
   handleNavigateBtnPress() {
-    const url = `geo:${this.props.lat},${this.props.lng}`;
+    const { name } = this.props;
+    const url = `google.navigation:q=${name}`;
     Linking.canOpenURL(url).then(supported => {
       if (!supported) {
         console.log('Can\'t handle url: ' + url);
@@ -22,23 +23,24 @@ class Place extends React.Component {
   }
 
   render() {
+    const { name, latitude, longitude, latitudeDelta, longitudeDelta } = this.props;
     return (
       <View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>{this.props.name}</Text>
+          <Text style={styles.text}>{name}</Text>
         </View>
         <View style={styles.container}>
           <MapView
             style={styles.map}
             initialRegion={{
-              latitude: this.props.lat,
-              longitude: this.props.lng,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
+              latitude,
+              longitude,
+              latitudeDelta,
+              longitudeDelta,
             }}
           >
             <MapView.Marker
-              coordinate={{ latitude: this.props.lat, longitude: this.props.lng }}
+              coordinate={{ latitude, longitude }}
             />
           </MapView>
         </View>
@@ -60,8 +62,10 @@ class Place extends React.Component {
 
 Place.propTypes = {
   name: PropTypes.string,
-  lat: PropTypes.number,
-  lng: PropTypes.number,
+  latitude: PropTypes.number,
+  longitude: PropTypes.number,
+  latitudeDelta: PropTypes.number,
+  longitudeDelta: PropTypes.number,
 };
 
 const styles = createStyleSheet({
@@ -120,7 +124,9 @@ const styles = createStyleSheet({
 });
 
 export default connect((state) => ({
-  name: state.location.name,
-  lat: state.location.lat,
-  lng: state.location.lng,
+  name: state.place.selectedPlace.name,
+  latitude: state.place.selectedPlace.latitude,
+  longitude: state.place.selectedPlace.longitude,
+  latitudeDelta: state.place.selectedPlace.latitudeDelta,
+  longitudeDelta: state.place.selectedPlace.longitudeDelta,
 }))(Place);

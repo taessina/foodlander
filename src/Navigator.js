@@ -5,14 +5,14 @@ import {
   Text,
 } from 'react-native';
 import { connect } from 'react-redux';
-import createStyleSheet from './common/createStyleSheet';
+import createStyleSheet from './components/common/createStyleSheet';
 import { actionCreators as navActionCreators } from './ducks/navigation';
-import Home from './containers/Home';
-import Place from './containers/Place';
+import Home from './components/Home';
+import Place from './components/Place';
 
 let styles = {};
 
-class FLNavigator extends React.Component {
+class Navigator extends React.Component {
   constructor(props) {
     super(props);
     this.handlers = [];
@@ -62,7 +62,7 @@ class FLNavigator extends React.Component {
   }
 }
 
-FLNavigator.propTypes = {
+Navigator.propTypes = {
   navigationState: PropTypes.object,
   dispatch: PropTypes.func,
 };
@@ -80,4 +80,4 @@ function select(store) {
   };
 }
 
-export default connect(select)(FLNavigator);
+export default connect(select)(Navigator);
