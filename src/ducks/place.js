@@ -19,7 +19,7 @@ type SetPlaceAction = {
 
 type Action = SetPlaceAction;
 
-import { Dimensions } from 'react-native';
+import { Alert, Dimensions } from 'react-native';
 import querystring from 'query-string';
 import { actionCreators as navActionCreators } from '../ducks/navigation';
 
@@ -78,12 +78,12 @@ export function doGetRandomPlace({ latitude: lat, longitude: lng }) {
           }));
           dispatch(navActionCreators.doNavigatePush({ key: 'place' }));
         } else if (data.status === 'ZERO_RESULTS') {
-          alert('Nothing found within 3km');
+          Alert.alert('Nothing found within 3km');
         } else {
-          alert(data.error_message);
+          Alert.alert(data.error_message);
         }
       })
-      .catch((e) => alert(e));
+      .catch((e) => Alert.alert(e));
   };
 }
 
