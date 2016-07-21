@@ -1,27 +1,8 @@
 import createStyleSheet from '../common/createStyleSheet';
 
 export default createStyleSheet({
-  textContainer: {
-    flex: 1,
-    height: 60,
-    backgroundColor: '#fafafa',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-  },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 400,
-  },
-  buttonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
   },
   map: {
     position: 'absolute',
@@ -29,28 +10,41 @@ export default createStyleSheet({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 400,
+  },
+  textContainer: {
+    alignSelf: 'stretch',
+    backgroundColor: '#fff',
+    borderRadius: 2,
+    elevation: 2,
+    margin: 8,
+    padding: 16,
+  },
+  text: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontSize: 20,
+    fontWeight: '500',
+  },
+  subtext: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontSize: 16,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingBottom: 16,
+    paddingRight: 16,
   },
   button: {
-    height: 50,
-    width: 100,
+    height: 56,
+    width: 56,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#37474f',
-    borderRadius: 20,
-    margin: 16,
-    elevation: 2,
-    shadowColor: 'grey',
-    shadowRadius: 2,
-    shadowOpacity: 0.7,
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '500',
+    borderRadius: 28,
+    elevation: 6,
   },
 });

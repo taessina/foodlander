@@ -19,8 +19,13 @@ type SetPlaceAction = {
 
 type Action = SetPlaceAction;
 
+import { Dimensions } from 'react-native';
 import querystring from 'query-string';
 import { actionCreators as navActionCreators } from '../ducks/navigation';
+
+const { width, height } = Dimensions.get('window');
+
+const ASPECT_RATIO = width / height;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const queryParams = {
@@ -53,18 +58,23 @@ export function doGetRandomPlace({ latitude: lat, longitude: lng }) {
       .then((data) => {
         if (data.status === 'OK') {
           const index = getRandomIntInclusive(0, data.results.length - 1);
-          const { name, geometry } = data.results[index];
+          const { name, geometry, vicinity } = data.results[index];
           const { lat: latitude, lng: longitude } = geometry.location;
-          const latitudeDelta = geometry.viewport ?
-            geometry.viewport.northeast.lat - geometry.viewport.southwest.lat : 0.004;
-          const longitudeDelta = geometry.viewport ?
-            geometry.viewport.northeast.lng - geometry.viewport.southwest.lng : 0.009;
+          // const latitudeDelta = geometry.viewport ?
+          //   geometry.viewport.northeast.lat - geometry.viewport.southwest.lat : 0.004;
+          // const longitudeDelta = geometry.viewport ?
+          //   geometry.viewport.northeast.lng - geometry.viewport.southwest.lng :
+          //   latitudeDelta * ASPECT_RATIO;
+          const latitudeDelta = 0.004;
+          const longitudeDelta = latitudeDelta * ASPECT_RATIO;
+
           dispatch(doSetPlace({
             name,
             latitude,
             longitude,
             latitudeDelta,
             longitudeDelta,
+            vicinity,
           }));
           dispatch(navActionCreators.doNavigatePush({ key: 'place' }));
         } else if (data.status === 'ZERO_RESULTS') {

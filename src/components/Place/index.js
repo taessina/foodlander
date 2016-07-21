@@ -3,13 +3,15 @@ import Place from './presenter';
 
 function mapStateToProps(state) {
   const { selectedPlace } = state.place;
-  const { name, latitude, longitude, latitudeDelta, longitudeDelta } = selectedPlace;
+  const { name, latitude, longitude, latitudeDelta, longitudeDelta, vicinity } = selectedPlace;
   return {
     name,
     latitude,
     longitude,
     latitudeDelta,
-    longitudeDelta };
+    longitudeDelta,
+    vicinity,
+  };
 }
 
 export default connect(mapStateToProps)(Place);
