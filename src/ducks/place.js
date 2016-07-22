@@ -29,7 +29,7 @@ const ASPECT_RATIO = width / height;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const queryParams = {
-  radius: 3000,
+  rankby: 'distance',
   types: 'restaurant',
   key: 'AIzaSyAUHiPKwFBti0xr0WiTcnJfXzcMK1bsOVM',
 };
