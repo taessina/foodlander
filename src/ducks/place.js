@@ -65,7 +65,7 @@ export function doGetRandomPlace({ latitude: lat, longitude: lng }) {
           // const longitudeDelta = geometry.viewport ?
           //   geometry.viewport.northeast.lng - geometry.viewport.southwest.lng :
           //   latitudeDelta * ASPECT_RATIO;
-          const latitudeDelta = 0.004;
+          const latitudeDelta = 0.01;
           const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
           dispatch(doSetPlace({
