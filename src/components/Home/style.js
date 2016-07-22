@@ -1,11 +1,17 @@
 import createStyleSheet from '../common/createStyleSheet';
+import colors from '../common/color';
 
 export default createStyleSheet({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.primaryColor,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingText: {
+    color: colors.accentColor,
+    fontWeight: '500',
+    marginTop: 16,
   },
   button: {
     height: 150,

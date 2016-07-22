@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react';
 import {
-  ActivityIndicator,
   Text,
   View,
 } from 'react-native';
+import Spinner from 'react-native-spinkit';
 import Touchable from '../common/F8Touchable';
+import colors from '../common/color';
 import styles from './style';
 
 class Home extends React.Component {
@@ -12,25 +13,25 @@ class Home extends React.Component {
     super(props);
 
     this.state = {
-      loading: false,
+      loading: true,
     };
   }
 
   handleBtnPress() {
-    this.setState({ loading: true });
+    // this.setState({ loading: true });
     this.props.doGetRandomPlace({
       latitude: this.props.latitude,
       longitude: this.props.longitude,
     });
-    this.setState({ loading: false });
+    // this.setState({ loading: false });
   }
 
   render() {
-    if (this.state.loading) {
+    if (!this.props.latitude && !this.props.longitude) {
       return (
-        <View>
-          <ActivityIndicator />
-          <Text>Searching for food nearby</Text>
+        <View style={styles.container}>
+          <Spinner color={colors.accentColor} type="Bounce" size={80} />
+          <Text style={styles.loadingText}>Searching for nearby restaurants</Text>
         </View>
       );
     }

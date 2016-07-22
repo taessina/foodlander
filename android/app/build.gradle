@@ -126,6 +126,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-spinkit')
     compile project(':react-native-vector-icons')
     compile 'com.airbnb.android:react-native-maps:0.7.1'
     compile fileTree(dir: "libs", include: ["*.jar"])

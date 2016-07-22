@@ -10,56 +10,58 @@ type Coordinate = {
   speed: number;
 };
 
-type State = {
+type Location = {
   coordinate: Coordinate;
+  provider: string;
   timestamp: number;
 }
 
-type SetCoordinateAction = {
+type SetLocationAction = {
   type: string;
-  coordinate: Coordinate;
+  location: Location;
 };
 
 type Action = SetCoordinateAction;
 
-const COORDINATE_SET = 'location/COORDINATE_SET';
+const LOCATION_SET = 'location/LOCATION_SET';
 
-export function doSetCoordinate(coordinate: Coordinate): SetCoordinateAction {
+export function doSetLocation(location: Location): SetLocationAction {
   return {
-    type: COORDINATE_SET,
-    coordinate,
+    type: LOCATION_SET,
+    location,
   };
 }
 
 const initialState = {
   coordinate: null,
+  provider: null,
   timestamp: null,
 };
 
-function applySetCoordinate(state, action) {
-  const { coordinate } = action;
+function applySetLocation(state, action) {
+  const { coordinate, provider, timestamp } = action.location;
   return {
-    ...state,
     coordinate,
-    timestamp: Date.now(),
+    provider,
+    timestamp,
   };
 }
 
-function reducer(state: State = initialState, action: Action): State {
+function reducer(state: Location = initialState, action: Action): Location {
   switch (action.type) {
-    case COORDINATE_SET:
-      return applySetCoordinate(state, action);
+    case LOCATION_SET:
+      return applySetLocation(state, action);
     default:
       return state;
   }
 }
 
 const actionCreators = {
-  doSetCoordinate,
+  doSetLocation,
 };
 
 const actionTypes = {
-  COORDINATE_SET,
+  LOCATION_SET,
 };
 
 export {
