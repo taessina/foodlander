@@ -94,8 +94,8 @@ class LocationMonitor extends React.Component {
     this.reported = true;
 
     Alert.alert(
-      `${error} ${provider}`,
-      'Please ensure GPS is enabled or try going outdoor.',
+      `${error}`,
+      'Please ensure GPS is enabled or try going outdoor, then restart the app.',
       [{ text: 'OK' }]
     );
   }
