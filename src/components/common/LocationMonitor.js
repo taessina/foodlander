@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as locationActionCreators } from '../../ducks/location';
+import { actionCreators as placeActionCreators } from '../../ducks/place';
 
 const TWO_MINUTES = 2 * 60 * 1000;
 const NETWORK_PROVIDER = 'NETWORK_PROVIDER';
@@ -77,11 +78,12 @@ class LocationMonitor extends React.Component {
   handleNewLocation(location, provider) {
     if (this.isBetterLocation(location)) {
       const { coords: coordinate, timestamp } = location;
-      this.props.doSetLocation({
+      this.props.setLocation({
         coordinate,
         provider,
         timestamp,
       });
+      this.props.getNearbyPlaces(coordinate);
     }
   }
 
@@ -106,7 +108,8 @@ class LocationMonitor extends React.Component {
 }
 
 LocationMonitor.propTypes = {
-  doSetLocation: PropTypes.func,
+  setLocation: PropTypes.func,
+  getNearbyPlaces: PropTypes.func,
   coordinate: PropTypes.object,
   timestamp: PropTypes.number,
   provider: PropTypes.string,
@@ -114,7 +117,8 @@ LocationMonitor.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return {
-    doSetLocation: bindActionCreators(locationActionCreators.doSetLocation, dispatch),
+    setLocation: bindActionCreators(locationActionCreators.doSetLocation, dispatch),
+    getNearbyPlaces: bindActionCreators(placeActionCreators.doGetNearbyPlaces, dispatch),
   };
 }
 

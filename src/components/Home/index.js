@@ -4,16 +4,20 @@ import { actionCreators as placeActionCreators } from '../../ducks/place';
 import Home from './presenter';
 
 function mapStateToProps(state) {
+  const { places, selectedPlace } = state.place;
   const { coordinate } = state.location;
   return {
-    latitude: coordinate ? coordinate.latitude : 0.0,
-    longitude: coordinate ? coordinate.longitude : 0.0,
+    places,
+    selectedPlace,
+    latitude: coordinate ? coordinate.latitude : 0,
+    longitude: coordinate ? coordinate.longitude : 0,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    doGetRandomPlace: bindActionCreators(placeActionCreators.doGetRandomPlace, dispatch),
+    getNearbyPlaces: bindActionCreators(placeActionCreators.doGetNearbyPlaces, dispatch),
+    doSetSelectedPlace: bindActionCreators(placeActionCreators.doSetSelectedPlace, dispatch),
   };
 }
 

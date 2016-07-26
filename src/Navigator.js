@@ -5,12 +5,8 @@ import {
   Text,
 } from 'react-native';
 import { connect } from 'react-redux';
-import createStyleSheet from './components/common/createStyleSheet';
 import { actionCreators as navActionCreators } from './ducks/navigation';
 import Home from './components/Home';
-import Place from './components/Place';
-
-let styles = {};
 
 class Navigator extends React.Component {
   constructor(props) {
@@ -42,16 +38,12 @@ class Navigator extends React.Component {
       return <Home text={sceneState.key} />;
     }
 
-    if (sceneState.key === 'place') {
-      return <Place />;
-    }
     return <Text>404</Text>;
   }
 
   render() {
     return (
       <NavigationExperimental.CardStack
-        style={styles.container}
         renderScene={props => this.renderScene(props)}
         navigationState={this.props.navigationState}
         onNavigateBack={() => {
@@ -66,13 +58,6 @@ Navigator.propTypes = {
   navigationState: PropTypes.object,
   dispatch: PropTypes.func,
 };
-
-styles = createStyleSheet({
-  container: {
-    flex: 1,
-    backgroundColor: '#123456',
-  },
-});
 
 function select(store) {
   return {

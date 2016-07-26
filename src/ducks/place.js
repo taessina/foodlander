@@ -4,28 +4,27 @@ type Place = {
   name: string;
   latitude: number;
   longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
 };
 
 type State = {
-  place: Place;
+  places: Array<Place>;
+  selectedPlace: Place;
 };
+
+type SetPlacesAction = {
+  type: string;
+  place: Array<Place>;
+}
 
 type SetPlaceAction = {
   type: string;
   place: Place;
 };
 
-type Action = SetPlaceAction;
+type Action = SetPlaceAction | SetPlacesAction;
 
-import { Alert, Dimensions } from 'react-native';
+import { Alert } from 'react-native';
 import querystring from 'query-string';
-import { actionCreators as navActionCreators } from '../ducks/navigation';
-
-const { width, height } = Dimensions.get('window');
-
-const ASPECT_RATIO = width / height;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const queryParams = {
@@ -34,20 +33,24 @@ const queryParams = {
   key: 'AIzaSyAUHiPKwFBti0xr0WiTcnJfXzcMK1bsOVM',
 };
 
-const PLACE_SET = 'place/PLACE_SET';
+const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
+const PLACES_SET = 'place/PLACES_SET';
 
-function doSetPlace(place: Place): SetPlaceAction {
+function doSetPlaces(places: Array<Place>): SetPlacesAction {
   return {
-    type: PLACE_SET,
+    type: PLACES_SET,
+    places,
+  };
+}
+
+function doSetSelectedPlace(place: Place): SetPlaceAction {
+  return {
+    type: SELETED_PLACE_SET,
     place,
   };
 }
 
-function getRandomIntInclusive(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function doGetRandomPlace({ latitude: lat, longitude: lng }) {
+function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
   return (dispatch) => {
     const params = {
       location: `${lat},${lng}`,
@@ -57,60 +60,61 @@ export function doGetRandomPlace({ latitude: lat, longitude: lng }) {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 'OK') {
-          const index = getRandomIntInclusive(0, data.results.length - 1);
-          const { name, geometry, vicinity } = data.results[index];
-          const { lat: latitude, lng: longitude } = geometry.location;
-          // const latitudeDelta = geometry.viewport ?
-          //   geometry.viewport.northeast.lat - geometry.viewport.southwest.lat : 0.004;
-          // const longitudeDelta = geometry.viewport ?
-          //   geometry.viewport.northeast.lng - geometry.viewport.southwest.lng :
-          //   latitudeDelta * ASPECT_RATIO;
-          const latitudeDelta = 0.01;
-          const longitudeDelta = latitudeDelta * ASPECT_RATIO;
-
-          dispatch(doSetPlace({
-            name,
-            latitude,
-            longitude,
-            latitudeDelta,
-            longitudeDelta,
-            vicinity,
-          }));
-          dispatch(navActionCreators.doNavigatePush({ key: 'place' }));
+          dispatch(doSetPlaces(data.results.map((result) => {
+            const { name, geometry, vicinity } = result;
+            const { lat: latitude, lng: longitude } = geometry.location;
+            return {
+              name,
+              latitude,
+              longitude,
+              vicinity,
+            };
+          })));
         } else if (data.status === 'ZERO_RESULTS') {
           Alert.alert('Nothing found within 3km');
         } else {
           Alert.alert(data.error_message);
         }
       })
-      .catch((e) => Alert.alert(e));
+      .catch((e) => Alert.alert(e)
+    );
   };
 }
 
 const initialState = {
   place: null,
+  places: [],
 };
 
-function applySetPlace(state, action) {
+function applySetPlaces(state, action) {
+  const { places } = action;
+  return { ...state, places };
+}
+
+function applySetSelectedPlace(state, action) {
   const { place } = action;
   return { ...state, selectedPlace: place };
 }
 
 function reducer(state: State = initialState, action: Action): State {
   switch (action.type) {
-    case PLACE_SET:
-      return applySetPlace(state, action);
+    case PLACES_SET:
+      return applySetPlaces(state, action);
+    case SELETED_PLACE_SET:
+      return applySetSelectedPlace(state, action);
     default:
       return state;
   }
 }
 
 const actionCreators = {
-  doGetRandomPlace,
+  doGetNearbyPlaces,
+  doSetSelectedPlace,
 };
 
 const actionTypes = {
-  PLACE_SET,
+  PLACES_SET,
+  SELETED_PLACE_SET,
 };
 
 export {
