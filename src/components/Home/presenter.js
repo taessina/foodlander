@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import {
   Alert,
-  Animated,
   Dimensions,
   Image,
   Linking,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Touchable from '../common/F8Touchable';
+import AnimatedLogo from '../common/AnimatedLogo';
 import colors from '../common/color';
 import styles from './style';
 import logo from '../../images/logo.png';
@@ -24,17 +24,6 @@ const buttonBackground =
   TouchableNativeFeedback.Ripple(colors.rippleColor, true); // eslint-disable-line new-cap
 
 class Home extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      rotateValue: new Animated.Value(0),
-    };
-  }
-
-  componentDidMount() {
-    this.runAnimation();
-  }
-
   componentDidUpdate(prevProps) {
     const { latitude, longitude, selectedPlace } = this.props;
     if (this.map &&
@@ -55,15 +44,6 @@ class Home extends React.Component {
   // Using Math.round() will give you a non-uniform distribution!
   getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
-  }
-
-  runAnimation() {
-    this.state.rotateValue.setValue(0);
-    Animated.decay(this.state.rotateValue, {
-      fromValue: 0,
-      toValue: 360,
-      velocity: 2,
-    }).start(() => this.runAnimation());
   }
 
   handleNavigate() {
@@ -120,30 +100,11 @@ class Home extends React.Component {
     return null;
   }
 
-  renderLoading() {
-    const rotate = this.state.rotateValue.interpolate({
-      inputRange: [0, 360],
-      outputRange: ['0deg', '360deg'],
-    });
-    return (
-      <View style={styles.loadingContainer}>
-        <Animated.Image
-          source={logo}
-          style={[
-            styles.loadingLogo,
-            { transform: [{ rotate }] },
-          ]}
-        />
-        <Text style={styles.loadingText}>Searching for nearby restaurants</Text>
-      </View>
-    );
-  }
-
   render() {
     const { latitude, longitude, places } = this.props;
 
     if (!places.length) {
-      return this.renderLoading();
+      return <AnimatedLogo />;
     }
 
     return (

@@ -7,28 +7,12 @@ export default createStyleSheet({
     backgroundColor: colors.primaryColor,
     paddingTop: 24,
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: colors.backgroundColor,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 24,
-  },
-  loadingLogo: {
-    height: 160,
-    width: 160,
-  },
   map: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  loadingText: {
-    color: colors.accentColor,
-    fontWeight: '500',
-    marginTop: 16,
   },
   bottomContainer: {
     position: 'absolute',
