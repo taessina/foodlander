@@ -9,10 +9,14 @@ export default createStyleSheet({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: colors.primaryColor,
+    backgroundColor: colors.backgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 24,
+  },
+  loadingLogo: {
+    height: 160,
+    width: 160,
   },
   map: {
     position: 'absolute',
@@ -39,7 +43,7 @@ export default createStyleSheet({
     height: 56,
     width: 56,
     borderRadius: 28,
-    backgroundColor: colors.buttonColor,
+    backgroundColor: colors.backgroundColor,
     elevation: 6,
   },
   logo: {
@@ -68,7 +72,6 @@ export default createStyleSheet({
   navContainer: {
     flex: 1,
     height: 36,
-    marginTop: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -78,7 +81,7 @@ export default createStyleSheet({
   separator: {
     height: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.12)',
-    marginBottom: 16,
-    marginTop: 16,
+    marginBottom: 8,
+    marginTop: 24,
   },
 });
