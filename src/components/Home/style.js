@@ -27,7 +27,7 @@ export default createStyleSheet({
     height: 56,
     width: 56,
     borderRadius: 28,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: '#fff',
     elevation: 6,
   },
   logo: {
