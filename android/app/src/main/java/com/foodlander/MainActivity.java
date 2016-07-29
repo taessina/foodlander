@@ -1,4 +1,4 @@
-package com.foodlander;
+package com.taessina.foodlander;
 
 import com.facebook.react.ReactActivity;
 
