@@ -19,20 +19,10 @@ export default createStyleSheet({
     bottom: 0,
     left: 0,
     right: 0,
+    height: 72,
+    paddingBottom: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 16,
-  },
-  buttonContainer: {
-    height: 56,
-    width: 56,
-    borderRadius: 28,
-    backgroundColor: '#fff',
-    elevation: 6,
-  },
-  logo: {
-    height: 56,
-    width: 56,
   },
   textContainer: {
     alignSelf: 'stretch',

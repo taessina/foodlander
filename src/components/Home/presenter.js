@@ -2,26 +2,21 @@ import React, { PropTypes } from 'react';
 import {
   Alert,
   Dimensions,
-  Image,
   Linking,
   Text,
-  TouchableNativeFeedback,
   View,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Touchable from '../common/F8Touchable';
 import AnimatedLogo from '../common/AnimatedLogo';
+import AnimatedFAB from '../common/AnimatedFAB';
 import colors from '../common/color';
 import styles from './style';
-import logo from '../../images/logo.png';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const latitudeDelta = 0.03; // Approx. viewport of 3km
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
-
-const buttonBackground =
-  TouchableNativeFeedback.Ripple(colors.rippleColor, true); // eslint-disable-line new-cap
 
 class Home extends React.Component {
   componentDidUpdate(prevProps) {
@@ -121,16 +116,7 @@ class Home extends React.Component {
         </MapView>
         {this.renderSelectedPlace()}
         <View style={styles.bottomContainer}>
-          <View style={styles.buttonContainer}>
-            <Touchable
-              background={buttonBackground}
-              onPress={() => this.handleGetRandomPlace()}
-            >
-              <View>
-                <Image style={styles.logo} source={logo} />
-              </View>
-            </Touchable>
-          </View>
+          <AnimatedFAB onPress={() => this.handleGetRandomPlace()} />
         </View>
       </View>
     );
