@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 import com.android.build.OutputFile
 
@@ -104,10 +105,27 @@ android {
             include "armeabi-v7a", "x86"
         }
     }
+
+    if (project.env.get("RELEASE_STORE_FILE")) {
+        signingConfigs {
+            release {
+                storeFile file(project.env.get("RELEASE_STORE_FILE"))
+                storePassword project.env.get("RELEASE_STORE_PASSWORD")
+                keyAlias project.env.get("RELEASE_KEY_ALIAS")
+                keyPassword project.env.get("RELEASE_KEY_PASSWORD")
+            }
+        }
+    } else {
+        signingConfigs {
+            release
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
     // applicationVariants are e.g. debug, release
@@ -126,6 +144,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-config')
     compile 'com.airbnb.android:react-native-maps:0.7.1'
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"

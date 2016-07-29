@@ -25,12 +25,13 @@ type Action = SetPlaceAction | SetPlacesAction;
 
 import { Alert } from 'react-native';
 import querystring from 'query-string';
+import Config from 'react-native-config';
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const queryParams = {
   rankby: 'distance',
   types: 'restaurant',
-  key: 'AIzaSyAUHiPKwFBti0xr0WiTcnJfXzcMK1bsOVM',
+  key: Config.GOOGLE_MAPS_API_KEY,
 };
 
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
