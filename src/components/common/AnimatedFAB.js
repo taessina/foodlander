@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import {
   Animated,
   Easing,
+  Platform,
   TouchableNativeFeedback,
   View,
 } from 'react-native';
@@ -10,8 +11,9 @@ import createStyleSheet from '../common/createStyleSheet';
 import colors from '../common/color';
 import logo from '../../images/logo.png';
 
-const buttonBackground =
-  TouchableNativeFeedback.Ripple(colors.rippleColor, true); // eslint-disable-line new-cap
+const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
+  TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
+  null;
 
 const styles = createStyleSheet({
   buttonContainer: {
