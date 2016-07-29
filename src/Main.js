@@ -7,7 +7,7 @@ import colors from './components/common/color';
 export default function Main() {
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar backgroundColor={colors.statusBarColor} translucent />
+      <StatusBar backgroundColor={colors.statusBarColor} />
       <LocationMonitor />
       <Navigator />
     </View>
