@@ -15,7 +15,7 @@ const styles = createStyleSheet({
     flex: 1,
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
-    justifyContent: 'space-around',
+    paddingTop: 32,
   },
   loadingLogo: {
     height: 320,
@@ -25,6 +25,7 @@ const styles = createStyleSheet({
     color: colors.loadingTextColor,
     fontWeight: '500',
     textAlign: 'center',
+    marginTop: 16,
   },
 });
 
