@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Animated,
+  Easing,
   Text,
   View,
 } from 'react-native';
@@ -14,17 +15,16 @@ const styles = createStyleSheet({
     flex: 1,
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 24,
+    justifyContent: 'space-around',
   },
   loadingLogo: {
-    height: 160,
-    width: 160,
+    height: 320,
+    width: 320,
   },
   loadingText: {
-    color: colors.accentColor,
+    color: colors.loadingTextColor,
     fontWeight: '500',
-    marginTop: 16,
+    textAlign: 'center',
   },
 });
 
@@ -42,17 +42,17 @@ class AnimatedLogo extends React.Component {
 
   runAnimation() {
     this.state.rotateValue.setValue(0);
-    Animated.decay(this.state.rotateValue, {
-      fromValue: 0,
-      toValue: 360,
-      velocity: 2,
+    Animated.timing(this.state.rotateValue, {
+      toValue: 720,
+      easing: Easing.bezier(0.23, 1, 0.32, 1),
+      duration: 2000,
     }).start(() => this.runAnimation());
   }
 
   render() {
     const rotate = this.state.rotateValue.interpolate({
-      inputRange: [0, 360],
-      outputRange: ['0deg', '360deg'],
+      inputRange: [0, 720],
+      outputRange: ['0deg', '720deg'],
     });
     return (
       <View style={styles.loadingContainer}>
@@ -63,7 +63,9 @@ class AnimatedLogo extends React.Component {
             { transform: [{ rotate }] },
           ]}
         />
-        <Text style={styles.loadingText}>Searching for nearby restaurants</Text>
+        <Text style={styles.loadingText}>
+          humbly solving the ultimate question in life
+        </Text>
       </View>
     );
   }
