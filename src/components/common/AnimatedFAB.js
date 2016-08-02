@@ -6,10 +6,10 @@ import {
   TouchableNativeFeedback,
   View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Touchable from '../common/F8Touchable';
 import createStyleSheet from '../common/createStyleSheet';
 import colors from '../common/color';
-import logo from '../../images/logo.png';
 
 const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
@@ -18,8 +18,14 @@ const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
 const styles = createStyleSheet({
   buttonContainer: {
     borderRadius: 28,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.accentColor,
     elevation: 6,
+  },
+  button: {
+    height: 56,
+    width: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
@@ -73,11 +79,8 @@ class AnimatedFAB extends React.Component {
           onPressIn={() => this.elevate(12)}
           onPressOut={() => this.elevate(6)}
         >
-          <View>
-            <Animated.Image
-              style={{ height: animValue, width: animValue }}
-              source={logo}
-            />
+          <View style={styles.button}>
+            <Icon name="local-dining" size={24} color="#fff" />
           </View>
         </Touchable>
       </Animated.View>

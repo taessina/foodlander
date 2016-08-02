@@ -77,7 +77,14 @@ class Home extends React.Component {
         </View>
       );
     }
-    return null;
+    return (
+      <View style={[styles.textContainer, styles.textContainerWithoutAction]}>
+        <Text style={styles.text}>Foodlander</Text>
+        <Text style={styles.subtext}>
+          Tap the button below to discover your next favourite food place.
+        </Text>
+      </View>
+    );
   }
 
   renderMarker(place) {

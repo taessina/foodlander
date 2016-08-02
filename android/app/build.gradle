@@ -144,6 +144,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-vector-icons')
     compile project(':react-native-maps')
     compile project(':react-native-config')
     //compile 'com.airbnb.android:react-native-maps:0.7.1'

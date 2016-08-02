@@ -5,7 +5,6 @@ export default createStyleSheet({
   container: {
     flex: 1,
     backgroundColor: colors.primaryColor,
-    paddingTop: 24,
   },
   map: {
     position: 'absolute',
@@ -30,8 +29,12 @@ export default createStyleSheet({
     borderRadius: 2,
     elevation: 24,
     margin: 8,
+    marginTop: 16,
     padding: 24,
     paddingBottom: 8,
+  },
+  textContainerWithoutAction: {
+    paddingBottom: 32,
   },
   text: {
     color: 'rgba(0, 0, 0, 0.87)',
