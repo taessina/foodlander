@@ -1,10 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import codePush from 'react-native-code-push';
 
 import Main from './Main';
 import configureStore from './stores/configureStore';
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -12,6 +13,7 @@ export default class App extends React.Component {
       store: configureStore(() => this.setState({ isLoading: false })),
     };
   }
+
   render() {
     if (this.state.isLoading) {
       return null;
@@ -23,6 +25,8 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default codePush(App);
 
 /* eslint-disable */
 console.disableYellowBox = true; // Temporarily disable warnings from NavigationExperimental

@@ -1,4 +1,5 @@
 <resources>
+    <string moduleConfig="true" name="reactNativeCodePush_androidDeploymentKey">BXO-2iWhbLXhhSlUtYtrEzz_CJW-N1CkLBFOZ</string>
 
 
     <string name="app_name">Foodlander</string>
