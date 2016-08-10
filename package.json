@@ -12,7 +12,7 @@
     "react-native": "^0.30.0",
     "react-native-code-push": "^1.14.1-beta",
     "react-native-config": "0.0.7",
-    "react-native-maps": "^0.7.1",
+    "react-native-maps": "github:alvinthen/react-native-maps#suppress-destroy-crash",
     "react-native-vector-icons": "^2.0.3",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
