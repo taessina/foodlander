@@ -18,7 +18,6 @@ type SetPlacesAction = {
 
 type SetPlaceAction = {
   type: string;
-  place: Place;
 };
 
 type Action = SetPlaceAction | SetPlacesAction;
@@ -37,17 +36,31 @@ const queryParams = {
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
 const PLACES_SET = 'place/PLACES_SET';
 
+// Fisher-Yates shuffle
+function shuffle(arr) {
+  const array = arr;
+  let m = array.length;
+  let t;
+  let i;
+  while (m) {
+    i = Math.floor(Math.random() * m--);
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+  return array;
+}
+
 function doSetPlaces(places: Array<Place>): SetPlacesAction {
   return {
     type: PLACES_SET,
-    places,
+    places: shuffle(places),
   };
 }
 
-function doSetSelectedPlace(place: Place): SetPlaceAction {
+function doGetNextPlace(): SetPlaceAction {
   return {
     type: SELETED_PLACE_SET,
-    place,
   };
 }
 
@@ -83,7 +96,7 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
 }
 
 const initialState = {
-  place: null,
+  index: null,
   places: [],
 };
 
@@ -92,9 +105,9 @@ function applySetPlaces(state, action) {
   return { ...state, places };
 }
 
-function applySetSelectedPlace(state, action) {
-  const { place } = action;
-  return { ...state, selectedPlace: place };
+function applySetSelectedPlace(state) {
+  const index = state.index === null ? 0 : (state.index + 1) % state.places.length;
+  return { ...state, index };
 }
 
 function reducer(state: State = initialState, action: Action): State {
@@ -110,7 +123,7 @@ function reducer(state: State = initialState, action: Action): State {
 
 const actionCreators = {
   doGetNearbyPlaces,
-  doSetSelectedPlace,
+  doGetNextPlace,
 };
 
 const actionTypes = {

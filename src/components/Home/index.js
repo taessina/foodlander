@@ -4,11 +4,11 @@ import { actionCreators as placeActionCreators } from '../../ducks/place';
 import Home from './presenter';
 
 function mapStateToProps(state) {
-  const { places, selectedPlace } = state.place;
+  const { places, index } = state.place;
   const { coordinate } = state.location;
   return {
     places,
-    selectedPlace,
+    index,
     latitude: coordinate ? coordinate.latitude : 0,
     longitude: coordinate ? coordinate.longitude : 0,
   };
@@ -17,7 +17,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getNearbyPlaces: bindActionCreators(placeActionCreators.doGetNearbyPlaces, dispatch),
-    doSetSelectedPlace: bindActionCreators(placeActionCreators.doSetSelectedPlace, dispatch),
+    getNextPlace: bindActionCreators(placeActionCreators.doGetNextPlace, dispatch),
   };
 }
 
