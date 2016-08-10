@@ -9,7 +9,7 @@
   "dependencies": {
     "query-string": "^4.2.2",
     "react": "^15.2.1",
-    "react-native": "^0.30.0",
+    "react-native": "^0.31.0",
     "react-native-code-push": "^1.14.1-beta",
     "react-native-config": "0.0.7",
     "react-native-maps": "github:alvinthen/react-native-maps#suppress-destroy-crash",
