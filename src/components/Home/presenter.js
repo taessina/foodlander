@@ -7,9 +7,10 @@ import {
   View,
 } from 'react-native';
 import MapView from 'react-native-maps';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Touchable from '../common/F8Touchable';
 import AnimatedLogo from '../common/AnimatedLogo';
-import AnimatedFAB from '../common/AnimatedFAB';
+import FloatingActionButton from '../common/FloatingActionButton';
 import colors from '../common/color';
 import styles from './style';
 
@@ -117,9 +118,13 @@ class Home extends React.Component {
           {this.renderMarker()}
         </MapView>
         {this.renderSelectedPlace()}
-        <View style={styles.bottomContainer}>
-          <AnimatedFAB onPress={() => this.handleGetRandomPlace()} />
-        </View>
+        <FloatingActionButton
+          position="center"
+          onPress={() => this.handleGetRandomPlace()}
+          buttonColor={colors.accentColor}
+        >
+          <Icon name="local-dining" size={24} color="#fff" />
+        </FloatingActionButton>
       </View>
     );
   }

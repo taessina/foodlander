@@ -13,16 +13,6 @@ export default createStyleSheet({
     right: 0,
     bottom: 0,
   },
-  bottomContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 72,
-    paddingBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   textContainer: {
     alignSelf: 'stretch',
     backgroundColor: '#fff',
