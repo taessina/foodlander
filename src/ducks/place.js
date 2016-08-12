@@ -27,10 +27,21 @@ import querystring from 'query-string';
 import Config from 'react-native-config';
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
-const queryParams = {
-  rankby: 'distance',
+const key = Config.GOOGLE_MAPS_API_KEY;
+
+const query = {
+  key,
+  radius: 5000,
+};
+
+const restaurantsQuery = {
+  ...query,
   types: 'restaurant',
-  key: Config.GOOGLE_MAPS_API_KEY,
+};
+
+const cafesQuery = {
+  ...query,
+  types: 'cafe',
 };
 
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
@@ -54,7 +65,7 @@ function shuffle(arr) {
 function doSetPlaces(places: Array<Place>): SetPlacesAction {
   return {
     type: PLACES_SET,
-    places: shuffle(places),
+    places,
   };
 }
 
@@ -64,34 +75,46 @@ function doGetNextPlace(): SetPlaceAction {
   };
 }
 
-function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
-  return (dispatch) => {
-    const params = {
-      location: `${lat},${lng}`,
-      ...queryParams,
-    };
+function fetchPlaces(params) {
+  return new Promise((resolve, reject) => {
     fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 'OK') {
-          dispatch(doSetPlaces(data.results.map((result) => {
-            const { name, geometry, vicinity } = result;
-            const { lat: latitude, lng: longitude } = geometry.location;
-            return {
-              name,
-              latitude,
-              longitude,
-              vicinity,
-            };
-          })));
+          resolve(data.results);
         } else if (data.status === 'ZERO_RESULTS') {
-          Alert.alert('Nothing found within 3km');
-        } else {
-          Alert.alert(data.error_message);
+          resolve([]);
         }
-      })
-      .catch((e) => Alert.alert(e)
+        reject(data.status);
+      }
     );
+  });
+}
+
+function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
+  return (dispatch) => {
+    Promise.all([
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...restaurantsQuery,
+      }),
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...cafesQuery,
+      }),
+    ]).then((results) => {
+      const places = [...results[0], ...results[1]];
+      dispatch(doSetPlaces(places.map((result) => {
+        const { name, geometry, vicinity } = result;
+        const { lat: latitude, lng: longitude } = geometry.location;
+        return {
+          name,
+          latitude,
+          longitude,
+          vicinity,
+        };
+      })));
+    }).catch((e) => Alert.alert(e.message));
   };
 }
 
@@ -102,7 +125,7 @@ const initialState = {
 
 function applySetPlaces(state, action) {
   const { places } = action;
-  return { ...state, places };
+  return { ...state, places: shuffle(places) };
 }
 
 function applySetSelectedPlace(state) {
