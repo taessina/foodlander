@@ -104,14 +104,12 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
       }),
     ]).then((results) => {
       const places = [...results[0], ...results[1]];
-      dispatch(doSetPlaces(places.map((result) => {
-        const { name, geometry, vicinity } = result;
-        const { lat: latitude, lng: longitude } = geometry.location;
+      dispatch(doSetPlaces(places.map((place) => {
+        const { lat: latitude, lng: longitude } = place.geometry.location;
         return {
-          name,
           latitude,
           longitude,
-          vicinity,
+          ...place,
         };
       })));
     }).catch((e) => Alert.alert(e.message));
@@ -125,7 +123,19 @@ const initialState = {
 
 function applySetPlaces(state, action) {
   const { places } = action;
-  return { ...state, places: shuffle(places) };
+  const newPlaces = places.filter((place, index, array) => {
+    if (place.permanently_closed) {
+      return false;
+    }
+
+    if (array.findIndex((p) => p.place_id === place.place_id) === index) {
+      return true;
+    }
+
+    return false;
+  });
+
+  return { ...state, places: shuffle(newPlaces) };
 }
 
 function applySetSelectedPlace(state) {
