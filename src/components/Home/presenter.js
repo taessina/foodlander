@@ -54,6 +54,28 @@ class Home extends React.Component {
     this.props.getNextPlace();
   }
 
+  renderRating(rating) {
+    if (rating) {
+      const stars = [];
+      for (let i = 0; i < 5; i++) {
+        stars.push((
+          <Icon
+            name={Math.round(rating) > i ? 'star' : 'star-border'}
+            size={24}
+            color="#0000008A"
+          />
+        ));
+      }
+      return (
+        <View style={styles.rating}>
+          {stars}
+        </View>
+      );
+    }
+
+    return null;
+  }
+
   renderSelectedPlace() {
     const { places, index } = this.props;
     const place = places[index];
@@ -62,6 +84,7 @@ class Home extends React.Component {
         <View style={styles.textContainer}>
           <Text style={styles.text}>{place.name}</Text>
           <Text style={styles.subtext}>{place.vicinity}</Text>
+          {this.renderRating(place.rating)}
           <View style={styles.separator} />
           <Touchable
             onPress={() => this.handleNavigate()}

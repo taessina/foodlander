@@ -51,4 +51,9 @@ export default createStyleSheet({
     marginBottom: 8,
     marginTop: 24,
   },
+  rating: {
+    flexDirection: 'row',
+    paddingTop: 8,
+    alignItems: 'center',
+  },
 });
