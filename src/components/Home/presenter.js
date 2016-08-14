@@ -16,6 +16,8 @@ import styles from './style';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
+const initialLatitudeDelta = 0.05; // Approx. viewport of 5km horizontally
+const initialLongitudeDelta = initialLatitudeDelta * ASPECT_RATIO;
 const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
@@ -111,19 +113,20 @@ class Home extends React.Component {
     );
   }
 
-  renderMarker() {
+  renderMarkers() {
     const { places, index } = this.props;
-    const place = places[index];
-    if (place) {
-      const { latitude, longitude } = place;
+    return places.map((place) => {
+      const { latitude, longitude, place_id: id } = place;
+      const color = index !== null && places[index].place_id === place.place_id ?
+        colors.selectedPinColor : colors.accentColor;
       return (
         <MapView.Marker
           coordinate={{ latitude, longitude }}
-          pinColor={colors.accentColor}
+          identifier={id}
+          pinColor={color}
         />
       );
-    }
-    return null;
+    });
   }
 
   render() {
@@ -140,10 +143,15 @@ class Home extends React.Component {
           showsUserLocation
           followsUserLocation
           showsMyLocationButton={false}
-          initialRegion={{ latitude, longitude, latitudeDelta, longitudeDelta }}
+          initialRegion={{
+            latitude,
+            longitude,
+            latitudeDelta: initialLatitudeDelta,
+            longitudeDelta: initialLongitudeDelta,
+          }}
           style={styles.map}
         >
-          {this.renderMarker()}
+          {this.renderMarkers()}
         </MapView>
         {this.renderSelectedPlace()}
         <FloatingActionButton
