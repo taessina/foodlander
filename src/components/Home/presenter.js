@@ -16,7 +16,7 @@ import styles from './style';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
-const latitudeDelta = 0.03; // Approx. viewport of 3km
+const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
 class Home extends React.Component {
@@ -83,7 +83,12 @@ class Home extends React.Component {
       return (
         <View style={styles.textContainer}>
           <Text style={styles.text}>{place.name}</Text>
-          <Text style={styles.subtext}>{place.vicinity}</Text>
+          <Text
+            numberOfLines={1}
+            style={styles.subtext}
+          >
+            {place.vicinity}
+          </Text>
           {this.renderRating(place.rating)}
           <View style={styles.separator} />
           <Touchable
