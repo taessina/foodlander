@@ -27,7 +27,6 @@ type SetPlaceAction = {
 
 type Action = SetPlaceAction | SetPlacesAction;
 
-import { Alert } from 'react-native';
 import querystring from 'query-string';
 import Config from 'react-native-config';
 
@@ -91,8 +90,8 @@ function fetchPlaces(params) {
           resolve([]);
         }
         reject(data.status);
-      }
-    );
+      })
+      .catch((e) => reject(e));
   });
 }
 
@@ -117,7 +116,13 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
           ...place,
         };
       })));
-    }).catch((e) => Alert.alert(e.message));
+    }).catch(() => {
+      // Retry 5s later, inhibiting errors
+      setTimeout(
+        () => dispatch(doGetNearbyPlaces({ latitude: lat, longitude: lng })),
+        5000
+      );
+    });
   };
 }
 
