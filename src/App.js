@@ -26,7 +26,11 @@ class App extends React.Component {
   }
 }
 
-export default codePush(App);
+export default codePush({
+  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
+  installMode: codePush.InstallMode.IMMEDIATE,
+  updateDialog: true,
+})(App);
 
 /* eslint-disable */
 console.disableYellowBox = true; // Temporarily disable warnings from NavigationExperimental
