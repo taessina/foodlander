@@ -41,8 +41,8 @@ class Home extends React.Component {
 
   handleNavigate() {
     const { places, index } = this.props;
-    const { latitude, longitude } = places[index];
-    const url = `google.navigation:q=${latitude},${longitude}`;
+    const { latitude, longitude, name } = places[index];
+    const url = `geo:0,0?q=${latitude},${longitude}(${name})`;
     Linking.openURL(url).catch((err) => {
       Alert.alert(
         'An error occurred',
