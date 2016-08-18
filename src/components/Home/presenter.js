@@ -64,7 +64,7 @@ class Home extends React.Component {
           <Icon
             name={Math.round(rating) > i ? 'star' : 'star-border'}
             size={24}
-            color="#0000008A"
+            color={colors.ratingColor}
             key={i}
           />
         ));

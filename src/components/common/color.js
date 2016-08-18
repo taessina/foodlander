@@ -8,4 +8,5 @@ export default {
   selectedPinColor: '#005176',
   primaryText: 'rgba(0, 0, 0, 0.87)',
   secondaryText: 'rgba(0, 0, 0, 0.54)',
+  ratingColor: 'rgb(245, 100, 0)',
 };
