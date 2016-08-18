@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import { Alert } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as locationActionCreators } from '../../ducks/location';
@@ -11,29 +10,44 @@ const GPS_PROVIDER = 'GPS_PROVIDER';
 
 class LocationMonitor extends React.Component {
   componentDidMount() {
-    // Get location from network provider
-    navigator.geolocation.getCurrentPosition(
-      (position) => this.handleNewLocation(position, NETWORK_PROVIDER),
-      (error) => this.handleError(error, NETWORK_PROVIDER)
-    );
+    // Get a quick location
+    this.getLocationByNetwork();
 
-    // Get location from GPS provider
-    navigator.geolocation.getCurrentPosition(
-      (position) => this.handleNewLocation(position, GPS_PROVIDER),
-      (error) => this.handleError(error, GPS_PROVIDER),
-      { enableHighAccuracy: true }
-    );
-
-    // Listen for location changes from GPS provider
-    this.gpsWatcher = navigator.geolocation.watchPosition(
-      (position) => this.handleNewLocation(position, GPS_PROVIDER),
-      (error) => this.handleError(error, GPS_PROVIDER),
-      { enableHighAccuracy: true, distanceFilter: 500 }
-    );
+    // Update location if user is on the move
+    this.getLocationByGPS();
   }
 
   componentWillUnmount() {
     navigator.geolocation.clearWatch(this.gpsWatcher);
+    clearTimeout(this.networkLocationTimer);
+    clearTimeout(this.gpsLocationTimer);
+  }
+
+  getLocationByNetwork() {
+    navigator.geolocation.getCurrentPosition(
+      (position) => this.handleNewLocation(position, NETWORK_PROVIDER),
+      () => this.handleError(NETWORK_PROVIDER),
+    );
+  }
+
+  getLocationByGPS(watch = false) {
+    const options = { enableHighAccuracy: true, distanceFilter: 500 };
+    if (watch) {
+      this.gpsWatcher = navigator.geolocation.watchPosition(
+        (position) => this.handleNewLocation(position, GPS_PROVIDER),
+        () => this.handleError(GPS_PROVIDER),
+        options
+      );
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.handleNewLocation(position, GPS_PROVIDER);
+          this.getLocationByGPS(true);
+        },
+        () => this.handleError(GPS_PROVIDER),
+        options
+      );
+    }
   }
 
   isBetterLocation(newLocation) {
@@ -75,6 +89,14 @@ class LocationMonitor extends React.Component {
     return true;
   }
 
+  handleError(provider) {
+    if (provider === GPS_PROVIDER) {
+      this.gpsLocationTimer = setTimeout(() => this.getLocationByGPS(), 5000);
+    } else {
+      this.networkLocationTimer = setTimeout(() => this.getLocationByNetwork(), 5000);
+    }
+  }
+
   handleNewLocation(location, provider) {
     if (this.isBetterLocation(location)) {
       const { coords: coordinate, timestamp } = location;
@@ -85,21 +107,6 @@ class LocationMonitor extends React.Component {
       });
       this.props.getNearbyPlaces(coordinate);
     }
-  }
-
-  handleError(error, provider) {
-    // Suppress error reporting
-    if (this.reported || provider === NETWORK_PROVIDER || this.props.coordinate) {
-      return;
-    }
-
-    this.reported = true;
-
-    Alert.alert(
-      `${error}`,
-      'Please ensure GPS is enabled or try going outdoor, then restart the app.',
-      [{ text: 'OK' }]
-    );
   }
 
   render() {
