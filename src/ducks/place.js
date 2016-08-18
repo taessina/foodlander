@@ -1,9 +1,14 @@
 // @flow
 
 type Place = {
-  name: string;
   latitude: number;
   longitude: number;
+  name: string;
+  opening_hours: ?{ open_now: boolean };
+  permanently_closed: ?boolean;
+  place_id: string;
+  rating: ?number;
+  vicinity: string;
 };
 
 type State = {
@@ -104,7 +109,7 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
       }),
     ]).then((results) => {
       const places = [...results[0], ...results[1]];
-      dispatch(doSetPlaces(places.map((place) => {
+      dispatch(doSetPlaces(places.map((place: Place) => {
         const { lat: latitude, lng: longitude } = place.geometry.location;
         return {
           latitude,
@@ -125,6 +130,8 @@ function applySetPlaces(state, action) {
   const { places } = action;
   const newPlaces = places.filter((place, index, array) => {
     if (place.permanently_closed) {
+      return false;
+    } else if (place.opening_hours && !place.opening_hours.open_now) {
       return false;
     }
 
