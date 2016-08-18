@@ -65,6 +65,7 @@ class Home extends React.Component {
             name={Math.round(rating) > i ? 'star' : 'star-border'}
             size={24}
             color="#0000008A"
+            key={i}
           />
         ));
       }
@@ -115,15 +116,16 @@ class Home extends React.Component {
 
   renderMarkers() {
     const { places, index } = this.props;
-    return places.map((place) => {
+    return places.map((place, i) => {
       const { latitude, longitude, place_id: id } = place;
-      const color = index !== null && places[index].place_id === place.place_id ?
-        colors.selectedPinColor : colors.accentColor;
+      const color = index === i ? colors.selectedPinColor : colors.accentColor;
       return (
         <MapView.Marker
           coordinate={{ latitude, longitude }}
           identifier={id}
           pinColor={color}
+          title={place.name}
+          key={id}
         />
       );
     });

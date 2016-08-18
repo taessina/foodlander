@@ -6,4 +6,6 @@ export default {
   rippleColor: '#FFFFFF40',
   loadingTextColor: '#0000004D',
   selectedPinColor: '#005176',
+  primaryText: 'rgba(0, 0, 0, 0.87)',
+  secondaryText: 'rgba(0, 0, 0, 0.54)',
 };

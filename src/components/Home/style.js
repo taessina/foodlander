@@ -27,13 +27,13 @@ export default createStyleSheet({
     paddingBottom: 32,
   },
   text: {
-    color: 'rgba(0, 0, 0, 0.87)',
+    color: colors.primaryText,
     fontSize: 20,
     fontWeight: '500',
     paddingBottom: 20,
   },
   subtext: {
-    color: 'rgba(0, 0, 0, 0.54)',
+    color: colors.secondaryText,
     fontSize: 16,
   },
   navContainer: {
