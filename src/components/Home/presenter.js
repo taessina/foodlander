@@ -16,20 +16,34 @@ import styles from './style';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
-const initialLatitudeDelta = 0.05; // Approx. viewport of 5km horizontally
-const initialLongitudeDelta = initialLatitudeDelta * ASPECT_RATIO;
 const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
 class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { loading: true };
+  }
+
+  componentDidMount() {
+    const { latitude, longitude, locationLocked } = this.props;
+
+    if (locationLocked) {
+      // HACK: Shamefully map doesn't load instantly, thus ugly hack
+      this.mapLoadTimer = setTimeout(() => {
+        this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
+        this.props.getNearbyPlaces({ latitude, longitude });
+      }, 5000);
+    }
+  }
+
   componentDidUpdate(prevProps) {
     const { latitude, longitude, places, index } = this.props;
-    const place = places[index];
-    if (this.map &&
-      (prevProps.latitude !== latitude ||
-      prevProps.longitude !== longitude)) {
+    if (!prevProps.locationLocked && this.props.locationLocked) {
       this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
-    } else if (this.map && place) {
+      this.props.getNearbyPlaces({ latitude, longitude });
+    } else if (prevProps.index !== index) {
+      const place = places[index];
       this.map.animateToRegion({
         latitude: place.latitude,
         longitude: place.longitude,
@@ -37,6 +51,10 @@ class Home extends React.Component {
         longitudeDelta,
       });
     }
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.mapLoadTimer);
   }
 
   handleNavigate() {
@@ -50,10 +68,6 @@ class Home extends React.Component {
         [{ text: 'OK' }]
       );
     });
-  }
-
-  handleGetRandomPlace() {
-    this.props.getNextPlace();
   }
 
   renderRating(rating) {
@@ -80,6 +94,10 @@ class Home extends React.Component {
   }
 
   renderSelectedPlace() {
+    if (!this.props.locationLocked) {
+      return null;
+    }
+
     const { places, index } = this.props;
     const place = places[index];
     if (place) {
@@ -131,11 +149,24 @@ class Home extends React.Component {
     });
   }
 
-  render() {
-    const { latitude, longitude, places } = this.props;
+  renderFAB() {
+    if (this.props.places.length) {
+      return (
+        <FloatingActionButton
+          position="center"
+          onPress={this.props.getNextPlace}
+          buttonColor={colors.accentColor}
+        >
+          <Icon name="local-dining" size={24} color="#fff" />
+        </FloatingActionButton>
+      );
+    }
+    return null;
+  }
 
-    if (!places.length) {
-      return <AnimatedLogo />;
+  render() {
+    if (this.state.loading) {
+      return <AnimatedLogo onEnd={() => this.setState({ loading: false })} />;
     }
 
     return (
@@ -146,23 +177,18 @@ class Home extends React.Component {
           followsUserLocation
           showsMyLocationButton={false}
           initialRegion={{
-            latitude,
-            longitude,
-            latitudeDelta: initialLatitudeDelta,
-            longitudeDelta: initialLongitudeDelta,
+            latitude: 10,
+            longitude: 110,
+            latitudeDelta: 50,
+            longitudeDelta: 50 * ASPECT_RATIO,
           }}
           style={styles.map}
         >
           {this.renderMarkers()}
         </MapView>
+        {!this.props.locationLocked && <AnimatedLogo size={64} />}
         {this.renderSelectedPlace()}
-        <FloatingActionButton
-          position="center"
-          onPress={() => this.handleGetRandomPlace()}
-          buttonColor={colors.accentColor}
-        >
-          <Icon name="local-dining" size={24} color="#fff" />
-        </FloatingActionButton>
+        {this.renderFAB()}
       </View>
     );
   }
@@ -173,6 +199,7 @@ Home.propTypes = {
   getNearbyPlaces: PropTypes.func,
   latitude: PropTypes.number,
   longitude: PropTypes.number,
+  locationLocked: PropTypes.bool,
   places: PropTypes.array,
   index: PropTypes.number,
 };

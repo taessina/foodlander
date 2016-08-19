@@ -105,7 +105,6 @@ class LocationMonitor extends React.Component {
         provider,
         timestamp,
       });
-      this.props.getNearbyPlaces(coordinate);
     }
   }
 

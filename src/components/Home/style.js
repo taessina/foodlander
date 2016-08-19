@@ -4,7 +4,11 @@ import colors from '../common/color';
 export default createStyleSheet({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryColor,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   map: {
     position: 'absolute',

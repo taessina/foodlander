@@ -7,6 +7,7 @@ import {
 import { connect } from 'react-redux';
 import { actionCreators as navActionCreators } from './ducks/navigation';
 import Home from './components/Home';
+import Splashscreen from './components/Splashscreen';
 
 class Navigator extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class Navigator extends React.Component {
   }
 
   handleBackButton() {
-    if (this.props.navigationState.index > 0) { // TODO: Check if we can go back
+    if (this.props.navigationState.index > 1) { // Never go back to splashscreen
       this.props.dispatch(navActionCreators.doNavigatePop());
       return true;
     }
@@ -34,8 +35,11 @@ class Navigator extends React.Component {
   renderScene(props) {
     const sceneState = props.scene.route;
 
+    if (sceneState.key === 'splashscreen') {
+      return <Splashscreen />;
+    }
     if (sceneState.key === 'index') {
-      return <Home text={sceneState.key} />;
+      return <Home />;
     }
 
     return <Text>404</Text>;
@@ -44,6 +48,8 @@ class Navigator extends React.Component {
   render() {
     return (
       <NavigationExperimental.CardStack
+        direction="vertical"
+        cardStyle={{ backgroundColor: '#CCEEFF' }}
         renderScene={props => this.renderScene(props)}
         navigationState={this.props.navigationState}
         onNavigateBack={() => {

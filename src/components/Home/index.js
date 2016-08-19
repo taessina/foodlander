@@ -9,8 +9,9 @@ function mapStateToProps(state) {
   return {
     places,
     index,
-    latitude: coordinate ? coordinate.latitude : 0,
-    longitude: coordinate ? coordinate.longitude : 0,
+    latitude: coordinate ? coordinate.latitude : null,
+    longitude: coordinate ? coordinate.longitude : null,
+    locationLocked: coordinate !== null,
   };
 }
 

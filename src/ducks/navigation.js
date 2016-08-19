@@ -7,47 +7,55 @@ const {
 } = NavigationExperimental;
 
 /* Action Types */
-export const NAVIGATE = 'navigation/NAVIGATE';
-export const NAV_PUSH = 'navigation/NAV_PUSH';
-export const NAV_POP = 'navigation/NAV_POP';
-export const NAV_JUMP_TO_KEY = 'navigation/NAV_JUMP_TO_KEY';
-export const NAV_JUMP_TO_INDEX = 'navigation/NAV_JUMP_TO_INDEX';
-export const NAV_RESET = 'navigation/NAV_RESET';
+export const PUSH = 'navigation/PUSH';
+export const POP = 'navigation/POP';
+export const JUMP_TO_KEY = 'navigation/JUMP_TO_KEY';
+export const JUMP_TO_INDEX = 'navigation/JUMP_TO_INDEX';
+export const RESET = 'navigation/RESET';
+export const REPLACE = 'navigation/REPLACE';
 
 /* Action Creators */
-export function doNavigatePush(state: Object|string): Object {
+export function doPush(state: Object|string): Object {
   const newState = typeof state === 'string' ? { key: state, title: state } : state;
   return {
-    type: NAV_PUSH,
+    type: PUSH,
     state: newState,
   };
 }
 
-export function doNavigatePop(): Object {
+export function doPop(): Object {
   return {
-    type: NAV_POP,
+    type: POP,
   };
 }
 
-export function doNavigateJumpToKey(key: string): Object {
+export function doJumpToKey(key: string): Object {
   return {
-    type: NAV_JUMP_TO_KEY,
+    type: JUMP_TO_KEY,
     key,
   };
 }
 
-export function doNavigateJumpToIndex(index: number): Object {
+export function doJumpToIndex(index: number): Object {
   return {
-    type: NAV_JUMP_TO_INDEX,
+    type: JUMP_TO_INDEX,
     index,
   };
 }
 
-export function doNavigateReset(routes: Array<Object>, index: number): Object {
+export function doReset(routes: Array<Object>, index: number): Object {
   return {
-    type: NAV_RESET,
+    type: RESET,
     index,
     routes,
+  };
+}
+
+export function doReplace(key: string, route: Object): Object {
+  return {
+    type: REPLACE,
+    key,
+    route,
   };
 }
 
@@ -56,7 +64,7 @@ const initialNavState = {
   key: 'Navigation',
   index: 0,
   routes: [
-    { key: 'index' },
+    { key: 'splashscreen' },
   ],
 };
 
@@ -64,25 +72,28 @@ const initialNavState = {
 function reducer(state: NavigationState = initialNavState,
   action: NavigationAction): NavigationState {
   switch (action.type) {
-    case NAV_PUSH:
+    case PUSH:
       if (state.routes[state.index].key === (action.state && action.state.key)) {
         return state;
       }
       return NavigationStateUtils.push(state, action.state);
 
-    case NAV_POP:
+    case POP:
       if (state.index === 0 || state.routes.length === 1) {
         return state;
       }
       return NavigationStateUtils.pop(state);
 
-    case NAV_JUMP_TO_KEY:
+    case JUMP_TO_KEY:
       return NavigationStateUtils.jumpTo(state, action.key);
 
-    case NAV_JUMP_TO_INDEX:
+    case JUMP_TO_INDEX:
       return NavigationStateUtils.jumpToIndex(state, action.index);
 
-    case NAV_RESET:
+    case REPLACE:
+      return NavigationStateUtils.replaceAt(state, action.key, action.route);
+
+    case RESET:
       return {
         ...state,
         index: action.index,
@@ -95,20 +106,20 @@ function reducer(state: NavigationState = initialNavState,
 }
 
 const actionCreators = {
-  doNavigateReset,
-  doNavigatePop,
-  doNavigatePush,
-  doNavigateJumpToKey,
-  doNavigateJumpToIndex,
+  doReset,
+  doPop,
+  doPush,
+  doJumpToKey,
+  doJumpToIndex,
+  doReplace,
 };
 
 const actionTypes = {
-  NAVIGATE,
-  NAV_PUSH,
-  NAV_POP,
-  NAV_JUMP_TO_KEY,
-  NAV_JUMP_TO_INDEX,
-  NAV_RESET,
+  PUSH,
+  POP,
+  JUMP_TO_KEY,
+  JUMP_TO_INDEX,
+  RESET,
 };
 
 export {
