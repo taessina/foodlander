@@ -94,12 +94,13 @@ class Home extends React.Component {
   }
 
   renderSelectedPlace() {
-    if (!this.props.locationLocked) {
+    const { places, index } = this.props;
+    const place = places[index];
+
+    if (!this.props.locationLocked || !places.length) {
       return null;
     }
 
-    const { places, index } = this.props;
-    const place = places[index];
     if (place) {
       return (
         <View style={styles.textContainer}>
@@ -186,7 +187,7 @@ class Home extends React.Component {
         >
           {this.renderMarkers()}
         </MapView>
-        {!this.props.locationLocked && <AnimatedLogo size={64} />}
+        {!this.props.locationLocked || !this.props.places.length && <AnimatedLogo size={64} />}
         {this.renderSelectedPlace()}
         {this.renderFAB()}
       </View>
