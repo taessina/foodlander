@@ -80,19 +80,14 @@ function doGetNextPlace(): SetPlaceAction {
 }
 
 function fetchPlaces(params) {
-  return new Promise((resolve, reject) => {
-    fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === 'OK') {
-          resolve(data.results);
-        } else if (data.status === 'ZERO_RESULTS') {
-          resolve([]);
-        }
-        reject(data.status);
-      })
-      .catch((e) => reject(e));
-  });
+  return fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === 'OK' || data.status === 'ZERO_RESULTS') {
+        return data.results;
+      }
+      throw data.status;
+    });
 }
 
 function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
