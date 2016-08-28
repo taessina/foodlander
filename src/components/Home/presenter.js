@@ -49,6 +49,7 @@ class Home extends React.Component {
       this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
       this.props.getNearbyPlaces({ latitude, longitude });
     } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
+      this.props.getNearbyPlaces({ latitude, longitude });
       this.map.animateToRegion({
         latitude,
         longitude,
@@ -57,16 +58,14 @@ class Home extends React.Component {
       });
     } else if (prevProps.index !== index) {
       const place = places[index];
-      this.map.animateToRegion({
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta,
-        longitudeDelta,
-      });
-    }
-
-    if (prevProps.isAreaSearch && !this.props.isAreaSearch) {
-      this.props.getNearbyPlaces({ latitude, longitude });
+      if (place) {
+        this.map.animateToRegion({
+          latitude: place.latitude,
+          longitude: place.longitude,
+          latitudeDelta,
+          longitudeDelta,
+        });
+      }
     }
   }
 
