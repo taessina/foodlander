@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import {
   Alert,
+  BackAndroid,
   Dimensions,
   Linking,
   Text,
@@ -8,11 +9,14 @@ import {
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import SearchInput from '../SearchInput';
+import SearchBar from '../SearchBar';
 import Touchable from '../common/F8Touchable';
 import AnimatedLogo from '../common/AnimatedLogo';
 import FloatingActionButton from '../common/FloatingActionButton';
 import colors from '../common/color';
 import styles from './style';
+import AnimatedBackgound from './AnimatedBackground';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -22,7 +26,7 @@ const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { loading: true };
+    this.state = { loading: true, search: false };
   }
 
   componentDidMount() {
@@ -35,6 +39,8 @@ class Home extends React.Component {
         this.props.getNearbyPlaces({ latitude, longitude });
       }, 5000);
     }
+
+    BackAndroid.addEventListener('hardwareBackPress', () => this.handleBackButton());
   }
 
   componentDidUpdate(prevProps) {
@@ -42,6 +48,13 @@ class Home extends React.Component {
     if (!prevProps.locationLocked && this.props.locationLocked) {
       this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
       this.props.getNearbyPlaces({ latitude, longitude });
+    } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
+      this.map.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01 * ASPECT_RATIO,
+      });
     } else if (prevProps.index !== index) {
       const place = places[index];
       this.map.animateToRegion({
@@ -51,10 +64,29 @@ class Home extends React.Component {
         longitudeDelta,
       });
     }
+
+    if (prevProps.isAreaSearch && !this.props.isAreaSearch) {
+      this.props.getNearbyPlaces({ latitude, longitude });
+    }
   }
 
   componentWillUnmount() {
     clearTimeout(this.mapLoadTimer);
+    BackAndroid.removeEventListener('hardwareBackPress', () => this.handleBackButton());
+  }
+
+  handleBackButton() {
+    if (this.state.search) {
+      this.setState({ search: false });
+      return true;
+    }
+
+    if (this.props.isAreaSearch) {
+      this.props.resetArea();
+      return true;
+    }
+
+    return false;
   }
 
   handleNavigate() {
@@ -165,6 +197,45 @@ class Home extends React.Component {
     return null;
   }
 
+  renderSearchInput() {
+    if (!this.state.search) return null;
+    return (
+      <SearchInput
+        onBack={() => this.setState({ search: false })}
+      />
+    );
+  }
+
+  renderLoading() {
+    if (!this.props.locationLocked || !this.props.places.length) {
+      return (
+        <View style={styles.loading}>
+          <AnimatedLogo size={64} />
+        </View>
+      );
+    }
+
+    return null;
+  }
+
+  renderComponents() {
+    if (this.state.search) {
+      return (
+        <View style={{ flex: 1 }}>
+          <AnimatedBackgound />
+          {this.renderSearchInput()}
+        </View>
+      );
+    }
+    return (
+      <View style={{ flex: 1 }}>
+        {<SearchBar onPress={() => this.setState({ search: true })} />}
+        {this.renderSelectedPlace()}
+        {this.renderFAB()}
+      </View>
+    );
+  }
+
   render() {
     if (this.state.loading) {
       return <AnimatedLogo onEnd={() => this.setState({ loading: false })} />;
@@ -187,9 +258,8 @@ class Home extends React.Component {
         >
           {this.renderMarkers()}
         </MapView>
-        {!this.props.locationLocked || !this.props.places.length && <AnimatedLogo size={64} />}
-        {this.renderSelectedPlace()}
-        {this.renderFAB()}
+        {this.renderLoading()}
+        {this.renderComponents()}
       </View>
     );
   }
@@ -198,11 +268,13 @@ class Home extends React.Component {
 Home.propTypes = {
   getNextPlace: PropTypes.func,
   getNearbyPlaces: PropTypes.func,
+  resetArea: PropTypes.func,
   latitude: PropTypes.number,
   longitude: PropTypes.number,
   locationLocked: PropTypes.bool,
   places: PropTypes.array,
   index: PropTypes.number,
+  isAreaSearch: PropTypes.bool,
 };
 
 export default Home;

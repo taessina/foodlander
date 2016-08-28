@@ -4,11 +4,6 @@ import colors from '../common/color';
 export default createStyleSheet({
   container: {
     flex: 1,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   map: {
     position: 'absolute',
@@ -21,9 +16,9 @@ export default createStyleSheet({
     alignSelf: 'stretch',
     backgroundColor: '#fff',
     borderRadius: 2,
-    elevation: 24,
+    elevation: 2,
     margin: 8,
-    marginTop: 16,
+    marginTop: 0,
     padding: 24,
     paddingBottom: 8,
   },
@@ -58,6 +53,15 @@ export default createStyleSheet({
   rating: {
     flexDirection: 'row',
     paddingTop: 8,
+    alignItems: 'center',
+  },
+  loading: {
+    position: 'absolute',
+    bottom: 16,
+    left: 0,
+    right: 0,
+    margin: 0,
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
 });

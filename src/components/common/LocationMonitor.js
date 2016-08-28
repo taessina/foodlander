@@ -105,6 +105,7 @@ class LocationMonitor extends React.Component {
         provider,
         timestamp,
       });
+      this.props.getArea(coordinate);
     }
   }
 
@@ -114,6 +115,7 @@ class LocationMonitor extends React.Component {
 }
 
 LocationMonitor.propTypes = {
+  getArea: PropTypes.func,
   setLocation: PropTypes.func,
   getNearbyPlaces: PropTypes.func,
   coordinate: PropTypes.object,
@@ -124,6 +126,7 @@ LocationMonitor.propTypes = {
 function mapDispatchToProps(dispatch) {
   return {
     setLocation: bindActionCreators(locationActionCreators.doSetLocation, dispatch),
+    getArea: bindActionCreators(locationActionCreators.doGetArea, dispatch),
     getNearbyPlaces: bindActionCreators(placeActionCreators.doGetNearbyPlaces, dispatch),
   };
 }

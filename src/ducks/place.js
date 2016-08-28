@@ -11,9 +11,16 @@ type Place = {
   vicinity: string;
 };
 
+type Area = {
+  keyword: string;
+  latitude: number;
+  longitude: number;
+};
+
 type State = {
   places: Array<Place>;
   selectedPlace: Place;
+  area: Area;
 };
 
 type SetPlacesAction = {
@@ -25,17 +32,29 @@ type SetPlaceAction = {
   type: string;
 };
 
-type Action = SetPlaceAction | SetPlacesAction;
+type SetAreaAction = {
+  type: string;
+  keyword: string;
+  latitude: number;
+  longitude: number;
+};
+
+type ResetAreaAction = {
+  type: string;
+};
+
+type Action = SetPlaceAction | SetPlacesAction | SetAreaAction | ResetAreaAction;
 
 import querystring from 'query-string';
 import Config from 'react-native-config';
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
+const GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
 const key = Config.GOOGLE_MAPS_API_KEY;
 
 const query = {
   key,
-  radius: 5000,
+  radius: 2000,
 };
 
 const restaurantsQuery = {
@@ -50,6 +69,8 @@ const cafesQuery = {
 
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
 const PLACES_SET = 'place/PLACES_SET';
+const AREA_SET = 'place/AREA_SET';
+const AREA_RESET = 'place/AREA_RESET';
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -76,6 +97,19 @@ function doSetPlaces(places: Array<Place>): SetPlacesAction {
 function doGetNextPlace(): SetPlaceAction {
   return {
     type: SELETED_PLACE_SET,
+  };
+}
+
+function doSetArea(area: Area): SetAreaAction {
+  return {
+    type: AREA_SET,
+    area,
+  };
+}
+
+function doResetArea(): ResetAreaAction {
+  return {
+    type: AREA_RESET,
   };
 }
 
@@ -121,9 +155,38 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
   };
 }
 
+function doGetPlacesNearArea(keywords: Array) {
+  return (dispatch) => {
+    dispatch(doSetArea({ keyword: keywords[0].value }));
+    // Get coordinate
+    const params = { address: keywords.map((t) => t.value).join(','), key };
+    fetch(`${GEOCODING_API}${querystring.stringify(params)}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 'OK') {
+          const { lat: latitude, lng: longitude } = data.results[0].geometry.location;
+          dispatch(doSetArea({ latitude, longitude }));
+          dispatch(doGetNearbyPlaces({ latitude, longitude }));
+        } else if (data.status === 'ZERO_RESULTS') {
+          dispatch(doSetPlaces([]));
+        } else {
+          throw data.status;
+        }
+      })
+      .catch(() => {
+        // Retry 5s later, inhibiting errors
+        setTimeout(
+          () => dispatch(doGetPlacesNearArea(keywords)),
+          5000
+        );
+      });
+  };
+}
+
 const initialState = {
   index: null,
   places: [],
+  area: {},
 };
 
 function applySetPlaces(state, action) {
@@ -142,12 +205,29 @@ function applySetPlaces(state, action) {
     return false;
   });
 
-  return { ...state, places: shuffle(newPlaces) };
+  return { ...state, places: shuffle(newPlaces), index: null };
 }
 
 function applySetSelectedPlace(state) {
   const index = state.index === null ? 0 : (state.index + 1) % state.places.length;
   return { ...state, index };
+}
+
+function applySetArea(state, action) {
+  const { area } = action;
+  const { keyword, latitude, longitude } = area;
+  return {
+    ...state,
+    area: {
+      keyword: keyword || state.area.keyword,
+      latitude: latitude || state.area.latitude,
+      longitude: longitude || state.area.longitude,
+    },
+  };
+}
+
+function applyResetArea(state) {
+  return { ...state, area: {} };
 }
 
 function reducer(state: State = initialState, action: Action): State {
@@ -156,6 +236,10 @@ function reducer(state: State = initialState, action: Action): State {
       return applySetPlaces(state, action);
     case SELETED_PLACE_SET:
       return applySetSelectedPlace(state, action);
+    case AREA_SET:
+      return applySetArea(state, action);
+    case AREA_RESET:
+      return applyResetArea(state, action);
     default:
       return state;
   }
@@ -164,11 +248,14 @@ function reducer(state: State = initialState, action: Action): State {
 const actionCreators = {
   doGetNearbyPlaces,
   doGetNextPlace,
+  doGetPlacesNearArea,
+  doResetArea,
 };
 
 const actionTypes = {
   PLACES_SET,
   SELETED_PLACE_SET,
+  AREA_SET,
 };
 
 export {
