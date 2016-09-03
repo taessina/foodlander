@@ -1,5 +1,8 @@
 // @flow
 
+import querystring from 'query-string';
+import Config from 'react-native-config';
+
 type Coordinate = {
   latitude: number;
   longitude: number;
@@ -28,9 +31,6 @@ type SetAreaAction = {
 
 type Action = SetLocationAction & SetAreaAction;
 type State = Location & { area: ?string };
-
-import querystring from 'query-string';
-import Config from 'react-native-config';
 
 const GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
 const key = Config.GOOGLE_MAPS_API_KEY;

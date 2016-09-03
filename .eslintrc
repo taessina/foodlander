@@ -6,6 +6,12 @@
   ],
   "rules": {
     "flow-vars/define-flow-type": 1,
-    "flow-vars/use-flow-type": 1
+    "flow-vars/use-flow-type": 1,
+    "react/jsx-filename-extension": [1, { "extensions": [".js"] }]
+  },
+  "globals": {
+    "fetch": false,
+    "navigator": false,
+    "window": false
   }
 }

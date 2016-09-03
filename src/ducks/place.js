@@ -1,5 +1,8 @@
 // @flow
 
+import querystring from 'query-string';
+import Config from 'react-native-config';
+
 type Place = {
   latitude: number;
   longitude: number;
@@ -35,9 +38,6 @@ type SetAreaAction = {
 };
 
 type Action = SetPlacesAction & SetAreaAction ;
-
-import querystring from 'query-string';
-import Config from 'react-native-config';
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
