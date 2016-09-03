@@ -9,41 +9,32 @@ type Place = {
   place_id: string;
   rating: ?number;
   vicinity: string;
+  geometry: Object;
 };
 
 type Area = {
-  keyword: string;
-  latitude: number;
-  longitude: number;
+  keyword?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 type State = {
   places: Array<Place>;
-  selectedPlace: Place;
+  index: ?number;
   area: Area;
 };
 
 type SetPlacesAction = {
   type: string;
-  place: Array<Place>;
+  places: Array<Place>;
 }
-
-type SetPlaceAction = {
-  type: string;
-};
 
 type SetAreaAction = {
   type: string;
-  keyword: string;
-  latitude: number;
-  longitude: number;
+  area: Area;
 };
 
-type ResetAreaAction = {
-  type: string;
-};
-
-type Action = SetPlaceAction | SetPlacesAction | SetAreaAction | ResetAreaAction;
+type Action = SetPlacesAction & SetAreaAction ;
 
 import querystring from 'query-string';
 import Config from 'react-native-config';
@@ -94,7 +85,7 @@ function doSetPlaces(places: Array<Place>): SetPlacesAction {
   };
 }
 
-function doGetNextPlace(): SetPlaceAction {
+function doGetNextPlace() {
   return {
     type: SELETED_PLACE_SET,
   };
@@ -107,7 +98,7 @@ function doSetArea(area: Area): SetAreaAction {
   };
 }
 
-function doResetArea(): ResetAreaAction {
+function doResetArea() {
   return {
     type: AREA_RESET,
   };
@@ -124,8 +115,8 @@ function fetchPlaces(params) {
     });
 }
 
-function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
-  return (dispatch) => {
+function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
+  return (dispatch: Function): void => {
     Promise.all([
       fetchPlaces({
         location: `${lat},${lng}`,
@@ -155,8 +146,8 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }) {
   };
 }
 
-function doGetPlacesNearArea(keywords: Array) {
-  return (dispatch) => {
+function doGetPlacesNearArea(keywords: Array<Object>) {
+  return (dispatch: Function): void => {
     dispatch(doSetArea({ keyword: keywords[0].value }));
     // Get coordinate
     const params = { address: keywords.map((t) => t.value).join(','), key };
@@ -189,7 +180,7 @@ const initialState = {
   area: {},
 };
 
-function applySetPlaces(state, action) {
+function applySetPlaces(state: State, action: SetPlacesAction) {
   const { places } = action;
   const newPlaces = places.filter((place, index, array) => {
     if (place.permanently_closed) {
@@ -213,7 +204,7 @@ function applySetSelectedPlace(state) {
   return { ...state, index };
 }
 
-function applySetArea(state, action) {
+function applySetArea(state: State, action: SetAreaAction) {
   const { area } = action;
   const { keyword, latitude, longitude } = area;
   return {

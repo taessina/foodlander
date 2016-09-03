@@ -11,9 +11,9 @@ type Coordinate = {
 };
 
 type Location = {
-  coordinate: Coordinate;
-  provider: string;
-  timestamp: number;
+  coordinate: ?Coordinate;
+  provider: ?string;
+  timestamp: ?number;
 }
 
 type SetLocationAction = {
@@ -23,11 +23,11 @@ type SetLocationAction = {
 
 type SetAreaAction = {
   type: string;
-  area: string;
+  area: ?string;
 }
 
-type Action = SetLocationAction | SetAreaAction;
-type State = Location & { area: string };
+type Action = SetLocationAction & SetAreaAction;
+type State = Location & { area: ?string };
 
 import querystring from 'query-string';
 import Config from 'react-native-config';
@@ -47,15 +47,15 @@ function doSetLocation(location: Location): SetLocationAction {
   };
 }
 
-function doSetArea(area: string): SetAreaAction {
+function doSetArea(area: ?string): SetAreaAction {
   return {
     type: AREA_SET,
     area,
   };
 }
 
-function doGetArea({ latitude, longitude }) {
-  return (dispatch) => {
+function doGetArea({ latitude, longitude }: Object) {
+  return (dispatch: Function) => {
     const params = {
       latlng: `${latitude},${longitude}`,
       ...query,
@@ -90,7 +90,7 @@ const initialState = {
   area: null,
 };
 
-function applySetLocation(state, action) {
+function applySetLocation(state: State, action: SetLocationAction) {
   const { coordinate, provider, timestamp } = action.location;
   return {
     ...state,

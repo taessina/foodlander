@@ -23,15 +23,14 @@
  * @flow
  */
 
-'use strict';
-import React from 'react'; // eslint-disable-line no-unused-vars
+import React from 'react';
 import {
   TouchableHighlight,
   TouchableNativeFeedback,
   Platform,
 } from 'react-native';
 
-function F8TouchableIOS(props: Object): ReactElement {
+function F8TouchableIOS(props: Object) {
   return (
     <TouchableHighlight
       accessibilityTraits="button"

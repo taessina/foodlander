@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "android": "react-native run-android",
-    "release-android": "cd android && ENVFILE=.env.release ./gradlew installRelease"
+    "release-android": "cd android && ENVFILE=.env.release ./gradlew installRelease",
+    "flow": "flow"
   },
   "dependencies": {
     "query-string": "^4.2.2",
@@ -13,7 +14,7 @@
     "react-native": "^0.32.0",
     "react-native-code-push": "^1.14.1-beta",
     "react-native-config": "0.0.7",
-    "react-native-maps": "github:alvinthen/react-native-maps#hide-location",
+    "react-native-maps": "0.8.0",
     "react-native-vector-icons": "^2.0.3",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
@@ -29,6 +30,7 @@
     "eslint-plugin-flow-vars": "^0.4.0",
     "eslint-plugin-import": "^1.11.0",
     "eslint-plugin-jsx-a11y": "^2.0.1",
-    "eslint-plugin-react": "^5.1.1"
+    "eslint-plugin-react": "^5.1.1",
+    "flow-bin": "^0.30.0"
   }
 }
