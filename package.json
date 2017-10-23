@@ -10,27 +10,27 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "query-string": "^4.2.2",
-    "react": "^15.3.1",
-    "react-native": "^0.32.0",
-    "react-native-code-push": "^1.14.1-beta",
-    "react-native-config": "0.0.7",
-    "react-native-maps": "github:alvinthen/react-native-maps#suppress-crash",
-    "react-native-vector-icons": "^2.0.3",
-    "react-redux": "^4.4.5",
-    "redux": "^3.5.2",
-    "redux-logger": "^2.6.1",
-    "redux-persist": "^3.2.2",
-    "redux-thunk": "^2.1.0"
+    "query-string": "^5.0.0",
+    "react": "^15.0.0",
+    "react-native": "^0.42.3",
+    "react-native-code-push": "^1.17.4-beta",
+    "react-native-config": "^0.9.0",
+    "react-native-maps": "0.13.1",
+    "react-native-vector-icons": "^4.4.2",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-logger": "^2.0.0",
+    "redux-persist": "^4.10.1",
+    "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
-    "babel-eslint": "^6.1.2",
-    "eslint": "^3.1.1",
-    "eslint-config-airbnb": "^10.0.1",
-    "eslint-plugin-flow-vars": "^0.4.0",
-    "eslint-plugin-import": "^1.11.0",
-    "eslint-plugin-jsx-a11y": "^2.0.1",
-    "eslint-plugin-react": "^6.2.0",
-    "flow-bin": "^0.30.0"
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-flow-vars": "^0.5.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0",
+    "flow-bin": "^0.57.3"
   }
 }

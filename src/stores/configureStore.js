@@ -17,7 +17,7 @@ const logger = createLogger({
 export default function configureStore(onComplete: ?() => void) {
   const enhancer = compose(autoRehydrate(), applyMiddleware(thunk, logger));
   const store = createStore(reducers, enhancer);
-  persistStore(store, { storage: AsyncStorage }, onComplete).purgeAll();
+  persistStore(store, { storage: AsyncStorage }, onComplete).purge();
   if (isDebuggingInChrome) {
     window.store = store;
   }
