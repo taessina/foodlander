@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import {
   Platform,
   Text,
@@ -44,9 +45,9 @@ class SearchBar extends React.Component {
 }
 
 SearchBar.propTypes = {
-  onPress: PropTypes.func,
-  area: PropTypes.string,
-  keyword: PropTypes.string,
+  onPress: propTypes.func.isRequired,
+  area: propTypes.string.isRequired,
+  keyword: propTypes.string.isRequired,
 };
 
 export default SearchBar;

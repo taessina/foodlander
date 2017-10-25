@@ -106,7 +106,7 @@ function doResetArea() {
 
 function fetchPlaces(params) {
   return fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
-    .then((response) => response.json())
+    .then(response => response.json())
     .then((data) => {
       if (data.status === 'OK' || data.status === 'ZERO_RESULTS') {
         return data.results;
@@ -140,7 +140,7 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
       // Retry 5s later, inhibiting errors
       setTimeout(
         () => dispatch(doGetNearbyPlaces({ latitude: lat, longitude: lng })),
-        5000
+        5000,
       );
     });
   };
@@ -150,9 +150,9 @@ function doGetPlacesNearArea(keywords: Array<Object>) {
   return (dispatch: Function): void => {
     dispatch(doSetArea({ keyword: keywords[0].value }));
     // Get coordinate
-    const params = { address: keywords.map((t) => t.value).join(','), key };
+    const params = { address: keywords.map(t => t.value).join(','), key };
     fetch(`${GEOCODING_API}${querystring.stringify(params)}`)
-      .then((response) => response.json())
+      .then(response => response.json())
       .then((data) => {
         if (data.status === 'OK') {
           const { lat: latitude, lng: longitude } = data.results[0].geometry.location;
@@ -168,7 +168,7 @@ function doGetPlacesNearArea(keywords: Array<Object>) {
         // Retry 5s later, inhibiting errors
         setTimeout(
           () => dispatch(doGetPlacesNearArea(keywords)),
-          5000
+          5000,
         );
       });
   };
@@ -189,7 +189,7 @@ function applySetPlaces(state: State, action: SetPlacesAction) {
       return false;
     }
 
-    if (array.findIndex((p) => p.place_id === place.place_id) === index) {
+    if (array.findIndex(p => p.place_id === place.place_id) === index) {
       return true;
     }
 

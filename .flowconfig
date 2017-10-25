@@ -22,7 +22,7 @@
 # For RN Apps installed via npm, "Libraries" folder is inside node_modules/react-native but in the source repo it is in the root
 .*/Libraries/react-native/React.js
 .*/Libraries/react-native/ReactNative.js
-.*/node_modules/jest-runtime/build/__tests__/.*
+.*/node_modules/.*
 
 # Ignore CodePushHash.json
 .*/CodePushHash.json
@@ -33,6 +33,8 @@
 node_modules/react-native/Libraries/react-native/react-native-interface.js
 node_modules/react-native/flow
 flow/
+
+[lints]
 
 [options]
 module.system=haste
@@ -56,6 +58,3 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(30\\|1[0-9]\\|[1-2][0-
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 
 unsafe.enable_getters_and_setters=true
-
-[version]
-^0.30.0

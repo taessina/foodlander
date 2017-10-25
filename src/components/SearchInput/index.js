@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Config from 'react-native-config';
@@ -31,7 +32,7 @@ class SearchInputContainer extends React.Component {
     const input = this.state.text;
     const params = { ...query, input };
     fetch(`${AUTOCOMPLETE_API}${querystring.stringify(params)}`)
-      .then((response) => response.json())
+      .then(response => response.json())
       .then((data) => {
         if (data.status === 'OK') {
           this.setState({ suggestions: data.predictions, prevText: input });
@@ -53,7 +54,7 @@ class SearchInputContainer extends React.Component {
         // Retry 5s later, inhibiting errors
         setTimeout(
           () => this.fetchSuggestions(),
-          5000
+          5000,
         );
       });
   }
@@ -87,15 +88,15 @@ class SearchInputContainer extends React.Component {
         onBack={this.props.onBack}
         onChangeText={this.handleChangeText}
         suggestions={this.state.suggestions}
-        onPress={(keywords) => this.handleOnPress(keywords)}
+        onPress={keywords => this.handleOnPress(keywords)}
       />
     );
   }
 }
 
 SearchInputContainer.propTypes = {
-  onBack: PropTypes.func,
-  getPlacesNearArea: PropTypes.func,
+  onBack: propTypes.func.isRequired,
+  getPlacesNearArea: propTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

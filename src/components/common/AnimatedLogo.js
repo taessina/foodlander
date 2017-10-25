@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import {
   Animated,
   Easing,
@@ -55,8 +56,8 @@ class AnimatedLogo extends React.Component {
 }
 
 AnimatedLogo.propTypes = {
-  onEnd: PropTypes.func,
-  size: PropTypes.number,
+  onEnd: propTypes.func.isRequired,
+  size: propTypes.number.isRequired,
 };
 
 export default AnimatedLogo;
