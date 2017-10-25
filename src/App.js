@@ -1,36 +1,27 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/lib/integration/react';
 import codePush from 'react-native-code-push';
 
 import Main from './Main';
 import configureStore from './stores/configureStore';
+import Splashscreen from './components/Splashscreen/presenter';
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      isLoading: true,
-      store: configureStore(() => this.setState({ isLoading: false })),
-    };
-  }
+const { persistedStore, store } = configureStore();
 
-  render() {
-    if (this.state.isLoading) {
-      return null;
-    }
-    return (
-      <Provider store={this.state.store}>
-        <Main />
-      </Provider>
-    );
-  }
-}
+const App = () => (
+  <Provider store={store}>
+    <PersistGate
+      persistor={persistedStore}
+      loading={<Splashscreen />}
+    >
+      <Main />
+    </PersistGate>
+  </Provider>
+);
 
 export default codePush({
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
   installMode: codePush.InstallMode.IMMEDIATE,
   updateDialog: true,
 })(App);
-
-/* eslint-disable */
-console.disableYellowBox = true; // Temporarily disable warnings from NavigationExperimental

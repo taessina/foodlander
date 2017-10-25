@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import {
   Alert,
   BackAndroid,
@@ -35,7 +36,9 @@ class Home extends React.Component {
     if (locationLocked) {
       // HACK: Shamefully map doesn't load instantly, thus ugly hack
       this.mapLoadTimer = setTimeout(() => {
-        this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
+        this.map.animateToRegion({
+          latitude, longitude, latitudeDelta, longitudeDelta,
+        });
         this.props.getNearbyPlaces({ latitude, longitude });
       }, 5000);
     }
@@ -44,9 +47,13 @@ class Home extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { latitude, longitude, places, index } = this.props;
+    const {
+      latitude, longitude, places, index,
+    } = this.props;
     if (!prevProps.locationLocked && this.props.locationLocked) {
-      this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
+      this.map.animateToRegion({
+        latitude, longitude, latitudeDelta, longitudeDelta,
+      });
       this.props.getNearbyPlaces({ latitude, longitude });
     } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
       this.props.getNearbyPlaces({ latitude, longitude });
@@ -96,7 +103,7 @@ class Home extends React.Component {
       Alert.alert(
         'An error occurred',
         err,
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
     });
   }
@@ -265,15 +272,15 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  getNextPlace: PropTypes.func,
-  getNearbyPlaces: PropTypes.func,
-  resetArea: PropTypes.func,
-  latitude: PropTypes.number,
-  longitude: PropTypes.number,
-  locationLocked: PropTypes.bool,
-  places: PropTypes.array,
-  index: PropTypes.number,
-  isAreaSearch: PropTypes.bool,
+  getNextPlace: propTypes.func.isRequired,
+  getNearbyPlaces: propTypes.func.isRequired,
+  resetArea: propTypes.func.isRequired,
+  latitude: propTypes.number.isRequired,
+  longitude: propTypes.number.isRequired,
+  locationLocked: propTypes.bool.isRequired,
+  places: propTypes.arrayOf.isRequired,
+  index: propTypes.number.isRequired,
+  isAreaSearch: propTypes.bool.isRequired,
 };
 
 export default Home;
