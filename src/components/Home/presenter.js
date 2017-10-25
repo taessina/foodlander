@@ -37,8 +37,8 @@ class Home extends React.Component {
       // HACK: Shamefully map doesn't load instantly, thus ugly hack
       this.mapLoadTimer = setTimeout(() => {
         this.map.animateToRegion({
- latitude, longitude, latitudeDelta, longitudeDelta 
-});
+          latitude, longitude, latitudeDelta, longitudeDelta,
+        });
         this.props.getNearbyPlaces({ latitude, longitude });
       }, 5000);
     }
@@ -48,12 +48,12 @@ class Home extends React.Component {
 
   componentDidUpdate(prevProps) {
     const {
- latitude, longitude, places, index 
-} = this.props;
+      latitude, longitude, places, index,
+    } = this.props;
     if (!prevProps.locationLocked && this.props.locationLocked) {
       this.map.animateToRegion({
- latitude, longitude, latitudeDelta, longitudeDelta 
-});
+        latitude, longitude, latitudeDelta, longitudeDelta,
+      });
       this.props.getNearbyPlaces({ latitude, longitude });
     } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
       this.props.getNearbyPlaces({ latitude, longitude });

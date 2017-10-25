@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-// import navigation from '../ducks/navigation';
 import place from '../ducks/place';
 import location from '../ducks/location';
 

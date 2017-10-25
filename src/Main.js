@@ -2,7 +2,7 @@ import React from 'react';
 import { StatusBar, View, Text } from 'react-native';
 import LocationMonitor from './components/common/LocationMonitor';
 import colors from './components/common/color';
-import ReactNavigator from './ducks/ReactNavigator';
+import ReactNavigator from './ReactNavigator';
 
 export default function Main() {
   return (

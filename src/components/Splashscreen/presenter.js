@@ -21,7 +21,7 @@ export default class Splashscreen extends React.Component {
   goToNext() {
     if (this.props.navigation != null) {
       const { navigate } = this.props.navigation;
-      navigate('Home', {/* parameter to next screen */});
+      navigate('Home');
     }
   }
 
@@ -37,6 +37,6 @@ export default class Splashscreen extends React.Component {
   }
 }
 
-/* Splashscreen.propTypes = {
+Splashscreen.propTypes = {
   navigation: propTypes.objectOf.isRequired,
-}; */
+};

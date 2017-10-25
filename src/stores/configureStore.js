@@ -1,4 +1,3 @@
-import { AsyncStorage } from 'react-native';
 import { applyMiddleware, createStore, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/es/storage';
@@ -23,10 +22,6 @@ const config = {
 const persistedReducer = persistReducer(config, reducers);
 
 export default function configureStore() {
-  /*
-  configure { storage: AsyncStorage }, onComplete
-  */
-
   const enhancer = compose(applyMiddleware(thunk, logger));
   const store = createStore(persistedReducer, enhancer);
 
