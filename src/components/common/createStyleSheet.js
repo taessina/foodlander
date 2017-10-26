@@ -1,3 +1,4 @@
+// @flow
 import { StyleSheet, Platform } from 'react-native';
 
 export default function createStyleSheet(styles: Object): {[name: string]: number} {

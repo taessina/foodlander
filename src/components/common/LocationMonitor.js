@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as locationActionCreators } from '../../ducks/location';
@@ -25,7 +26,7 @@ class LocationMonitor extends React.Component {
 
   getLocationByNetwork() {
     navigator.geolocation.getCurrentPosition(
-      (position) => this.handleNewLocation(position, NETWORK_PROVIDER),
+      position => this.handleNewLocation(position, NETWORK_PROVIDER),
       () => this.handleError(NETWORK_PROVIDER),
     );
   }
@@ -34,9 +35,9 @@ class LocationMonitor extends React.Component {
     const options = { enableHighAccuracy: true, distanceFilter: 500 };
     if (watch) {
       this.gpsWatcher = navigator.geolocation.watchPosition(
-        (position) => this.handleNewLocation(position, GPS_PROVIDER),
+        position => this.handleNewLocation(position, GPS_PROVIDER),
         () => this.handleError(GPS_PROVIDER),
-        options
+        options,
       );
     } else {
       navigator.geolocation.getCurrentPosition(
@@ -45,7 +46,7 @@ class LocationMonitor extends React.Component {
           this.getLocationByGPS(true);
         },
         () => this.handleError(GPS_PROVIDER),
-        options
+        options,
       );
     }
   }
@@ -115,12 +116,11 @@ class LocationMonitor extends React.Component {
 }
 
 LocationMonitor.propTypes = {
-  getArea: PropTypes.func,
-  setLocation: PropTypes.func,
-  getNearbyPlaces: PropTypes.func,
-  coordinate: PropTypes.object,
-  timestamp: PropTypes.number,
-  provider: PropTypes.string,
+  getArea: propTypes.func.isRequired,
+  setLocation: propTypes.func.isRequired,
+  coordinate: propTypes.objectOf.isRequired,
+  timestamp: propTypes.number.isRequired,
+  provider: propTypes.string.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -131,6 +131,6 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect((state) => ({
+export default connect(state => ({
   ...state.location,
 }), mapDispatchToProps)(LocationMonitor);
