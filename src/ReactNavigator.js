@@ -1,4 +1,3 @@
-import React from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import Splashscreen from './components/Splashscreen/presenter';
 import Home from './components/Home';

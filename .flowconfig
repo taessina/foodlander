@@ -29,6 +29,7 @@
 
 [libs]
 Libraries/react-native/react-native-interface.js
+node_modules/fbjs/flow/lib/dev.js
 flow/
 
 [options]

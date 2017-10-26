@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
@@ -16,7 +17,7 @@ const query = {
 class SearchInputContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { text: '', prevText: '', suggestions: [] };
+    this.state = { text: '', prevText: '', suggestions: null };
     this.handleChangeText = this.handleChangeText.bind(this);
   }
 

@@ -70,7 +70,7 @@ function shuffle(arr) {
   let t;
   let i;
   while (m) {
-    i = Math.floor(Math.random() * m--);
+    i = Math.floor(Math.random() * (m -= 1));
     t = array[m];
     array[m] = array[i];
     array[i] = t;
@@ -226,11 +226,11 @@ function reducer(state: State = initialState, action: Action): State {
     case PLACES_SET:
       return applySetPlaces(state, action);
     case SELETED_PLACE_SET:
-      return applySetSelectedPlace(state, action);
+      return applySetSelectedPlace(state);
     case AREA_SET:
       return applySetArea(state, action);
     case AREA_RESET:
-      return applyResetArea(state, action);
+      return applyResetArea(state);
     default:
       return state;
   }
