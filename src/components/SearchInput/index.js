@@ -28,9 +28,11 @@ const query = {
 class SearchInputContainer extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    this.state = { text: '', prevText: '', suggestions: [] };
+    this.state = { text: '', prevText: '', suggestions: [null] };
     this.handleChangeText = this.handleChangeText.bind(this);
   }
+
+  state: State;
 
   componentDidMount() {
     this.startTimer();
@@ -99,7 +101,7 @@ class SearchInputContainer extends React.Component<Props, State> {
     return (
       <SearchInput
         onBack={this.props.onBack}
-        onChangeText={this.handleChangeText}
+        onChangeText={(value) => { this.handleChangeText(value); }}
         suggestions={this.state.suggestions}
         onPress={this.handleOnPress}
       />

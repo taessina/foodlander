@@ -10,6 +10,7 @@ function mapStateToProps(state) {
   const { latitude } = area;
   const { longitude } = area;
 
+<<<<<<< HEAD
   let lat = null;
   let lng = null;
   let isAreaSearch = false;
@@ -21,13 +22,31 @@ function mapStateToProps(state) {
   } else if (coordinate) {
     lat = coordinate.latitude;
     lng = coordinate.longitude;
+=======
+  let compLatitude = null;
+  let compLongitude = null;
+  let isAreaSearch = false;
+
+  if (latitude) {
+    compLatitude = latitude;
+    compLongitude = longitude;
+    isAreaSearch = true;
+  } else if (coordinate) {
+    compLatitude = coordinate.latitude;
+    compLongitude = coordinate.longitude;
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
   }
 
   return {
     places,
     index,
+<<<<<<< HEAD
     lat,
     lng,
+=======
+    compLatitude,
+    compLongitude,
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
     isAreaSearch,
     locationLocked: coordinate !== null,
   };

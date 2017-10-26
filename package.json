@@ -10,7 +10,11 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+<<<<<<< HEAD
     "flow-bin": "0.53",
+=======
+    "global": "^4.3.2",
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
     "prop-types": "^15.6.0",
     "query-string": "^5.0.0",
     "react": "^16.0.0",
@@ -34,6 +38,11 @@
     "eslint-plugin-flowtype": "^2.39.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
+<<<<<<< HEAD
     "eslint-plugin-react": "^7.4.0"
+=======
+    "eslint-plugin-react": "^7.4.0",
+    "flow-bin": "^0.57.3"
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
   }
 }

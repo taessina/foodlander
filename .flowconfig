@@ -45,6 +45,7 @@
 
 ; Ignore React-native/Libraries/react-native Issues 
 .*/Libraries/react-native/.*
+<<<<<<< HEAD
 
 ; Ignore node_modules/Metro-bundler Issues
 .*/node_modules/metro-bundler/.*
@@ -60,12 +61,21 @@
 
 ; node_modules/redux-persist Issues
 .*/node_modules/redux-persist/.*
+=======
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
 
 [include]
 
 [libs]
 Libraries/react-native/react-native-interface.js
+<<<<<<< HEAD
 node_modules/fbjs/flow/lib/dev.js
+=======
+<<<<<<< HEAD
+=======
+node_modules/fbjs/flow/lib/dev.js
+>>>>>>> 92eb7a7146e7c639bb7d17586449bc179cf5c50c
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
 flow/
 
 [options]
@@ -83,11 +93,14 @@ module.name_mapper='^ScrollResponder$' -> 'emptyObject'
 module.name_mapper='^SwipeableRow$' -> 'emptyObject'
 module.name_mapper='^Lists$' -> 'emptyObject'
 module.name_mapper='^react-native$' -> 'emptyObject'
+<<<<<<< HEAD
 module.name_mapper='^metro-bundler$' -> 'emptyObject'
 module.name_mapper='^react-native-tab-view$' -> 'emptyObject'
 module.name_mapper='^components$' -> 'emptyObject'
 module.name_mapper='^Inspector$' -> 'emptyObject'
 module.name_mapper='^redux-persist$' -> 'emptyObject'
+=======
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
@@ -103,4 +116,8 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 unsafe.enable_getters_and_setters=true
 
 [version]
+<<<<<<< HEAD
 ^0.53.0
+=======
+^0.57.0
+>>>>>>> c6a10304c5cf51548bd5308397e5b99ee33ec189
