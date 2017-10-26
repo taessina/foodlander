@@ -1,5 +1,5 @@
 import { StackNavigator } from 'react-navigation';
-import Splashscreen from './components/Splashscreen';
+import Splashscreen from './components/Splashscreen/presenter';
 import Home from './components/Home';
 
 const ReactNavigator = StackNavigator(
