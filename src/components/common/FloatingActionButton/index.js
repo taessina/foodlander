@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import {
   Animated,
   Easing,
@@ -79,10 +80,10 @@ class FloatingActionButton extends React.Component {
 }
 
 FloatingActionButton.propTypes = {
-  onPress: PropTypes.func,
-  children: PropTypes.element,
-  position: PropTypes.oneOf(['center', 'left', 'right']),
-  buttonColor: PropTypes.string,
+  onPress: propTypes.func.isRequired,
+  children: propTypes.element.isRequired,
+  position: propTypes.oneOf(['center', 'left', 'right']),
+  buttonColor: propTypes.string,
 };
 
 FloatingActionButton.defaultProps = {
