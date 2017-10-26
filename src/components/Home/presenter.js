@@ -111,7 +111,7 @@ class Home extends React.Component {
   renderRating(rating) {
     if (rating) {
       const stars = [];
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 5; i += 1) {
         stars.push((
           <Icon
             name={Math.round(rating) > i ? 'star' : 'star-border'}

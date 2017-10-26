@@ -25,10 +25,35 @@
 ; Ignore polyfills
 .*/Libraries/polyfills/.*
 
+; Ignore React-native/Libraries/Interaction Issues
+.*/Libraries/Interaction/.*
+
+; Ignore React-native/Libraries/StyleSheet/StyleSheetValidation Issues 
+.*/Libraries/StyleSheet/StyleSheetValidation
+
+; Ignore React-native/Libraries/Animated Issues
+.*/Libraries/Animated/.*
+
+; Ignore React-native/Libraries/Components/ScrollResponder Issues 
+.*/Libraries/Components/ScrollResponder
+
+; Ignore React-native/Libraries/Experimental/SwipeableRow Issues 
+.*/Libraries/Experimental/SwipeableRow/.*
+
+; Ignore React-native/Libraries/Lists Issues 
+.*/Libraries/Lists/.*
+
+; Ignore React-native/Libraries/react-native Issues 
+.*/Libraries/react-native/.*
+
 [include]
 
 [libs]
 Libraries/react-native/react-native-interface.js
+<<<<<<< HEAD
+=======
+node_modules/fbjs/flow/lib/dev.js
+>>>>>>> 92eb7a7146e7c639bb7d17586449bc179cf5c50c
 flow/
 
 [options]
@@ -39,6 +64,13 @@ module.system=haste
 munge_underscores=true
 
 module.name_mapper='^[./a-zA-Z0-9$_-]+\.\(bmp\|gif\|jpg\|jpeg\|png\|psd\|svg\|webp\|m4v\|mov\|mp4\|mpeg\|mpg\|webm\|aac\|aiff\|caf\|m4a\|mp3\|wav\|html\|pdf\)$' -> 'RelativeImageStub'
+module.name_mapper='^Interaction$' -> 'emptyObject'
+module.name_mapper='^StyleSheetValidation$' -> 'emptyObject'
+module.name_mapper='^Animated$' -> 'emptyObject'
+module.name_mapper='^ScrollResponder$' -> 'emptyObject'
+module.name_mapper='^SwipeableRow$' -> 'emptyObject'
+module.name_mapper='^Lists$' -> 'emptyObject'
+module.name_mapper='^react-native$' -> 'emptyObject'
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe

@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Touchable from '../common/F8Touchable';
-import colors from '../common/color.js';
-import styles from './style.js';
+import colors from '../common/color';
+import styles from './style';
 
 const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
