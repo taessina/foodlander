@@ -6,24 +6,28 @@ import Home from './presenter';
 function mapStateToProps(state) {
   const { places, index, area } = state.place;
   const { coordinate } = state.location;
-  let latitude = null;
-  let longitude = null;
+
+  const { latitude } = area;
+  const { longitude } = area;
+
+  let compLatitude = null;
+  let compLongitude = null;
   let isAreaSearch = false;
 
-  if (area.latitude) {
-    latitude = area.latitude;
-    longitude = area.longitude;
+  if (latitude) {
+    compLatitude = latitude;
+    compLongitude = longitude;
     isAreaSearch = true;
   } else if (coordinate) {
-    latitude = coordinate.latitude;
-    longitude = coordinate.longitude;
+    compLatitude = coordinate.latitude;
+    compLongitude = coordinate.longitude;
   }
 
   return {
     places,
     index,
-    latitude,
-    longitude,
+    compLatitude,
+    compLongitude,
     isAreaSearch,
     locationLocked: coordinate !== null,
   };
