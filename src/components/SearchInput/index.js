@@ -1,4 +1,6 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
+import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Config from 'react-native-config';
@@ -12,7 +14,18 @@ const query = {
   types: 'geocode',
 };
 
-class SearchInputContainer extends React.Component {
+  type State = {
+    text: string,
+    prevText: string,
+    suggestions: Array<mixed>
+  };
+
+  type Props = {
+    getPlacesNearArea: Function,
+    onBack: Function
+  };
+
+class SearchInputContainer extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = { text: '', prevText: '', suggestions: [] };
@@ -27,11 +40,15 @@ class SearchInputContainer extends React.Component {
     clearTimeout(this.timer);
   }
 
+  props: Props;
+  handleChangeText: Function;
+  timer: number;
+
   fetchSuggestions() {
     const input = this.state.text;
     const params = { ...query, input };
     fetch(`${AUTOCOMPLETE_API}${querystring.stringify(params)}`)
-      .then((response) => response.json())
+      .then(response => response.json())
       .then((data) => {
         if (data.status === 'OK') {
           this.setState({ suggestions: data.predictions, prevText: input });
@@ -53,7 +70,7 @@ class SearchInputContainer extends React.Component {
         // Retry 5s later, inhibiting errors
         setTimeout(
           () => this.fetchSuggestions(),
-          5000
+          5000,
         );
       });
   }
@@ -72,14 +89,11 @@ class SearchInputContainer extends React.Component {
     }, 1500);
   }
 
-  handleChangeText(text) {
-    this.setState({ text });
-  }
-
-  handleOnPress(keywords: Array) {
+  handleChangeText = (value) => { this.setState({ text: value }); };
+  handleOnPress = (keywords) => {
     this.props.getPlacesNearArea(keywords);
     this.props.onBack();
-  }
+  };
 
   render() {
     return (
@@ -87,15 +101,15 @@ class SearchInputContainer extends React.Component {
         onBack={this.props.onBack}
         onChangeText={this.handleChangeText}
         suggestions={this.state.suggestions}
-        onPress={(keywords) => this.handleOnPress(keywords)}
+        onPress={this.handleOnPress}
       />
     );
   }
 }
 
 SearchInputContainer.propTypes = {
-  onBack: PropTypes.func,
-  getPlacesNearArea: PropTypes.func,
+  onBack: propTypes.func.isRequired,
+  getPlacesNearArea: propTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

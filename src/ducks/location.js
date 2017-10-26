@@ -61,10 +61,10 @@ function doGetArea({ latitude, longitude }: Object) {
       ...query,
     };
     fetch(`${GEOCODING_API}${querystring.stringify(params)}`)
-      .then((response) => response.json())
+      .then(response => response.json())
       .then((data) => {
         if (data.status === 'OK') {
-          const area = data.results.find((result) => result.types.includes('sublocality'))
+          const area = data.results.find(result => result.types.includes('sublocality'))
             .address_components[0].long_name;
           dispatch(doSetArea(area));
         } else if (data.status === 'ZERO_RESULTS') {
@@ -77,7 +77,7 @@ function doGetArea({ latitude, longitude }: Object) {
         // Retry 5s later, inhibiting errors
         setTimeout(
           () => dispatch(doGetArea({ latitude, longitude })),
-          5000
+          5000,
         );
       });
   };
