@@ -10,6 +10,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "global": "^4.3.2",
     "prop-types": "^15.6.0",
     "query-string": "^5.0.0",
     "react": "^16.0.0",

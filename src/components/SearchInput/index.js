@@ -14,12 +14,25 @@ const query = {
   types: 'geocode',
 };
 
-class SearchInputContainer extends React.Component {
+  type State = {
+    text: string,
+    prevText: string,
+    suggestions: Array<mixed>
+  };
+
+  type Props = {
+    getPlacesNearArea: Function,
+    onBack: Function
+  };
+
+class SearchInputContainer extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    this.state = { text: '', prevText: '', suggestions: null };
+    this.state = { text: '', prevText: '', suggestions: [null] };
     this.handleChangeText = this.handleChangeText.bind(this);
   }
+
+  state: State;
 
   componentDidMount() {
     this.startTimer();
@@ -28,6 +41,10 @@ class SearchInputContainer extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
+
+  props: Props;
+  handleChangeText: Function;
+  timer: number;
 
   fetchSuggestions() {
     const input = this.state.text;
@@ -74,11 +91,11 @@ class SearchInputContainer extends React.Component {
     }, 1500);
   }
 
-  handleChangeText(text) {
-    this.setState({ text });
+  handleChangeText(value) {
+    this.setState({ text: value });
   }
 
-  handleOnPress(keywords: Array) {
+  handleOnPress(keywords) {
     this.props.getPlacesNearArea(keywords);
     this.props.onBack();
   }
@@ -87,7 +104,7 @@ class SearchInputContainer extends React.Component {
     return (
       <SearchInput
         onBack={this.props.onBack}
-        onChangeText={this.handleChangeText}
+        onChangeText={(value) => { this.handleChangeText(value); }}
         suggestions={this.state.suggestions}
         onPress={keywords => this.handleOnPress(keywords)}
       />
