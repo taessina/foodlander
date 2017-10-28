@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Config from 'react-native-config';
@@ -14,15 +13,15 @@ const query = {
   types: 'geocode',
 };
 
+  type Props = {
+    getPlacesNearArea: Function,
+    onBack: Function
+  };
+
   type State = {
     text: string,
     prevText: string,
     suggestions: Array<mixed>
-  };
-
-  type Props = {
-    getPlacesNearArea: Function,
-    onBack: Function
   };
 
 class SearchInputContainer extends React.Component<Props, State> {
@@ -107,11 +106,6 @@ class SearchInputContainer extends React.Component<Props, State> {
     );
   }
 }
-
-SearchInputContainer.propTypes = {
-  onBack: propTypes.func.isRequired,
-  getPlacesNearArea: propTypes.func.isRequired,
-};
 
 function mapDispatchToProps(dispatch) {
   return {

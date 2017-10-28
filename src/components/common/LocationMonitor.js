@@ -1,5 +1,5 @@
+// @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as locationActionCreators } from '../../ducks/location';
@@ -9,7 +9,15 @@ const TWO_MINUTES = 2 * 60 * 1000;
 const NETWORK_PROVIDER = 'NETWORK_PROVIDER';
 const GPS_PROVIDER = 'GPS_PROVIDER';
 
-class LocationMonitor extends React.Component {
+type Props = {
+  getArea: Fucntion,
+  setLocation: Function,
+  coordinate: Object,
+  timestamp: number,
+  provider: string,
+};
+
+class LocationMonitor extends React.Component<Props, void> {
   componentDidMount() {
     // Get a quick location
     this.getLocationByNetwork();
@@ -110,18 +118,12 @@ class LocationMonitor extends React.Component {
     }
   }
 
-  render() {
-    return null;
-  }
-}
+props: Props;
 
-LocationMonitor.propTypes = {
-  getArea: propTypes.func.isRequired,
-  setLocation: propTypes.func.isRequired,
-  coordinate: propTypes.objectOf.isRequired,
-  timestamp: propTypes.number.isRequired,
-  provider: propTypes.string.isRequired,
-};
+render() {
+  return null;
+}
+}
 
 function mapDispatchToProps(dispatch) {
   return {

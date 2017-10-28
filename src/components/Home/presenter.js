@@ -1,8 +1,8 @@
+// @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import {
   Alert,
-  BackAndroid,
+  BackHandler,
   Dimensions,
   Linking,
   Text,
@@ -24,10 +24,31 @@ const ASPECT_RATIO = width / height;
 const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
-class Home extends React.Component {
+type Props = {
+  getNearbyPlaces: Function,
+  getNearbyPlaces: Function,
+  getNextPlace: Function,
+  resetArea: Function,
+  latitude: number,
+  longitude: number,
+  locationLocked: Bool,
+  places: Array,
+  index: number,
+  isAreaSearch: Bool,
+};
+
+type State = {
+  loading: Boolean,
+  search: Boolean,
+};
+
+class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    this.state = { loading: true, search: false };
+    this.state = {
+      loading: true,
+      search: false,
+    };
   }
 
   componentDidMount() {
@@ -43,7 +64,7 @@ class Home extends React.Component {
       }, 5000);
     }
 
-    BackAndroid.addEventListener('hardwareBackPress', () => this.handleBackButton());
+    BackHandler.addEventListener('hardwareBackPress', () => this.handleBackButton());
   }
 
   componentDidUpdate(prevProps) {
@@ -78,8 +99,10 @@ class Home extends React.Component {
 
   componentWillUnmount() {
     clearTimeout(this.mapLoadTimer);
-    BackAndroid.removeEventListener('hardwareBackPress', () => this.handleBackButton());
+    BackHandler.removeEventListener('hardwareBackPress', () => this.handleBackButton());
   }
+
+  props: Props;
 
   handleBackButton() {
     if (this.state.search) {
@@ -270,17 +293,5 @@ class Home extends React.Component {
     );
   }
 }
-
-Home.propTypes = {
-  getNextPlace: propTypes.func.isRequired,
-  getNearbyPlaces: propTypes.func.isRequired,
-  resetArea: propTypes.func.isRequired,
-  latitude: propTypes.number.isRequired,
-  longitude: propTypes.number.isRequired,
-  locationLocked: propTypes.bool.isRequired,
-  places: propTypes.arrayOf.isRequired,
-  index: propTypes.number.isRequired,
-  isAreaSearch: propTypes.bool.isRequired,
-};
 
 export default Home;

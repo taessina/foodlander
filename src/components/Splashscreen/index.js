@@ -1,5 +1,5 @@
+// @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import {
   Text,
   View,
@@ -7,7 +7,15 @@ import {
 import AnimatedLogo from '../common/AnimatedLogo';
 import styles from './style';
 
-export default class Splashscreen extends React.Component {
+type Props = {
+  navigation: Object,
+};
+
+type State = {
+  title: String,
+};
+
+export default class Splashscreen extends React.Component<Props, State> {
   static navigationOptions = {
     title: 'Splash',
   }
@@ -36,7 +44,3 @@ export default class Splashscreen extends React.Component {
     );
   }
 }
-
-Splashscreen.propTypes = {
-  navigation: propTypes.objectOf.isRequired,
-};

@@ -1,5 +1,5 @@
+// @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import {
   Platform,
   Text,
@@ -12,11 +12,19 @@ import Touchable from '../common/F8Touchable';
 import colors from '../common/color';
 import styles from './style';
 
+type Props = {
+  onBack: Function,
+  onChangeText: Function,
+  onPress: Function,
+  suggestions: Array<String>,
+  style: Object
+};
+
 const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
   null;
 
-class SearchInput extends React.Component {
+class SearchInput extends React.Component<Props, void> {
   constructor(props) {
     super(props);
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -25,6 +33,8 @@ class SearchInput extends React.Component {
   handleChangeText(text) {
     this.props.onChangeText(text);
   }
+
+  props: Props;
 
   renderSuggestions() {
     return this.props.suggestions.map((place, index) => {
@@ -77,13 +87,5 @@ class SearchInput extends React.Component {
     );
   }
 }
-
-SearchInput.propTypes = {
-  onBack: propTypes.func.isRequired,
-  onChangeText: propTypes.func.isRequired,
-  onPress: propTypes.func.isRequired,
-  suggestions: propTypes.arrayOf.isRequired,
-  style: propTypes.objectOf.isRequired,
-};
 
 export default SearchInput;

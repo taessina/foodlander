@@ -1,5 +1,5 @@
+// @flow
 import React from 'react';
-import propTypes from 'prop-types';
 import {
   Platform,
   Text,
@@ -11,15 +11,27 @@ import Touchable from '../common/F8Touchable';
 import colors from '../common/color';
 import styles from './style';
 
+type Props = {
+  onPress: Function,
+  area: String,
+  keyword: String
+};
+
+type State = {
+  elevation: number
+};
+
 const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
   null;
 
-class SearchBar extends React.Component {
+class SearchBar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = { elevation: 2 };
   }
+
+  props: Props;
 
   elevate(elevation) {
     this.setState({ elevation });
@@ -43,11 +55,5 @@ class SearchBar extends React.Component {
     );
   }
 }
-
-SearchBar.propTypes = {
-  onPress: propTypes.func.isRequired,
-  area: propTypes.string.isRequired,
-  keyword: propTypes.string.isRequired,
-};
 
 export default SearchBar;
