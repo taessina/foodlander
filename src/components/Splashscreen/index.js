@@ -4,6 +4,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import AnimatedLogo from '../common/AnimatedLogo';
 import styles from './style';
 
@@ -28,8 +29,13 @@ export default class Splashscreen extends React.Component<Props, State> {
 
   goToNext() {
     if (this.props.navigation != null) {
-      const { navigate } = this.props.navigation;
-      navigate('Home');
+      const resetNavigation = NavigationActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Home' })],
+      });
+
+      const { dispatch } = this.props.navigation;
+      dispatch(resetNavigation);
     }
   }
 

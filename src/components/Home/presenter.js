@@ -7,6 +7,7 @@ import {
   Linking,
   Text,
   View,
+  ToastAndroid,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -35,12 +36,12 @@ type Props = {
   places: Array,
   index: number,
   isAreaSearch: Bool,
-  navigation: Object
 };
 
 type State = {
   loading: Boolean,
   search: Boolean,
+  onExit: Boolean,
 };
 
 class Home extends React.Component<Props, State> {
@@ -49,11 +50,12 @@ class Home extends React.Component<Props, State> {
     this.state = {
       loading: true,
       search: false,
+      onExit: false,
     };
+    this.handleBackButton = this.handleBackButton.bind(this);
   }
 
   componentDidMount() {
-    console.log(this.props.navigation.state);
     const { latitude, longitude, locationLocked } = this.props;
 
     if (locationLocked) {
@@ -66,7 +68,8 @@ class Home extends React.Component<Props, State> {
       }, 5000);
     }
 
-    BackHandler.addEventListener('hardwareBackPress', () => this.handleBackButton());
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    this.interval = setInterval(() => this.setState({ onExit: false }), 5000);
   }
 
   componentDidUpdate(prevProps) {
@@ -101,7 +104,8 @@ class Home extends React.Component<Props, State> {
 
   componentWillUnmount() {
     clearTimeout(this.mapLoadTimer);
-    BackHandler.removeEventListener('hardwareBackPress', () => this.handleBackButton());
+    clearInterval(this.interval);
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   props: Props;
@@ -116,11 +120,17 @@ class Home extends React.Component<Props, State> {
       this.props.resetArea();
       return true;
     }
-
-    if (this.props.navigation != null) {
-      this.props.navigation.navigate('Splash');
+    if (!this.state.onExit) {
+      ToastAndroid.show('Press Back Button Again To Exit', ToastAndroid.LONG);
+      this.setState({
+        onExit: true,
+      });
+      return true;
     }
-    return false;
+    if (this.state.onExit) {
+      return false;
+    }
+    return true;
   }
 
   handleNavigate() {

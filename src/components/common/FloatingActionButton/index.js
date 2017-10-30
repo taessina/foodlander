@@ -18,7 +18,7 @@ const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
 type Props = {
   onPress: func,
   children: element,
-  position: string | number,
+  position: 'left' | 'center' | 'right',
   buttonColor: string,
 };
 
