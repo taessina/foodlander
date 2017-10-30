@@ -1,17 +1,21 @@
 {
-  parser: "babel-eslint",
-  "extends": "airbnb",
-  "plugins": [
-    "flow-vars"
+  "parser": "babel-eslint",
+  "plugins":[
+    "flowtype"
+  ],
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended"
   ],
   "rules": {
-    "flow-vars/define-flow-type": 1,
-    "flow-vars/use-flow-type": 1,
-    "react/jsx-filename-extension": [1, { "extensions": [".js"] }]
+    "react/jsx-filename-extension": 0,
+    "class-methods-use-this": 0
   },
   "globals": {
-    "fetch": false,
-    "navigator": false,
-    "window": false
+    "__DEV__": true
+  },
+  "env": {
+    "browser": true,
+    "jest": true
   }
 }
