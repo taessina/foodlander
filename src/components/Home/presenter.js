@@ -35,6 +35,7 @@ type Props = {
   places: Array,
   index: number,
   isAreaSearch: Bool,
+  navigation: Object
 };
 
 type State = {
@@ -52,6 +53,7 @@ class Home extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    console.log(this.props.navigation.state);
     const { latitude, longitude, locationLocked } = this.props;
 
     if (locationLocked) {
@@ -115,6 +117,9 @@ class Home extends React.Component<Props, State> {
       return true;
     }
 
+    if (this.props.navigation != null) {
+      this.props.navigation.navigate('Splash');
+    }
     return false;
   }
 
