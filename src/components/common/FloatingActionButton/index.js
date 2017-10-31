@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 import {
   Animated,
   Easing,
@@ -14,7 +15,19 @@ const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
   null;
 
-class FloatingActionButton extends React.Component {
+type Props = {
+  onPress: func,
+  children: element,
+  position: 'left' | 'center' | 'right',
+  buttonColor: string,
+};
+
+type State = {
+  animValue: number,
+  elevation: number,
+};
+
+class FloatingActionButton extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -26,6 +39,8 @@ class FloatingActionButton extends React.Component {
   componentDidMount() {
     this.applyAnimation();
   }
+
+  props: Props;
 
   applyAnimation() {
     Animated.timing(this.state.animValue, {
@@ -77,17 +92,5 @@ class FloatingActionButton extends React.Component {
     );
   }
 }
-
-FloatingActionButton.propTypes = {
-  onPress: PropTypes.func,
-  children: PropTypes.element,
-  position: PropTypes.oneOf(['center', 'left', 'right']),
-  buttonColor: PropTypes.string,
-};
-
-FloatingActionButton.defaultProps = {
-  position: 'center',
-  buttonColor: 'white',
-};
 
 export default FloatingActionButton;

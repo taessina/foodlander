@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 import {
   Platform,
   Text,
@@ -8,24 +9,32 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Touchable from '../common/F8Touchable';
-import colors from '../common/color.js';
-import styles from './style.js';
+import colors from '../common/color';
+import styles from './style';
+
+type Props = {
+  onBack: Function,
+  onChangeText: Function,
+  onPress: Function,
+  suggestions: Array<String>,
+  style: Object
+};
 
 const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
   TouchableNativeFeedback.Ripple(colors.rippleColor, true) : // eslint-disable-line new-cap
   null;
 
-class SearchInput extends React.Component {
+class SearchInput extends React.Component<Props, void> {
   constructor(props) {
     super(props);
-    this.state = { text: '' };
     this.handleChangeText = this.handleChangeText.bind(this);
   }
 
   handleChangeText(text) {
-    this.setState({ text });
     this.props.onChangeText(text);
   }
+
+  props: Props;
 
   renderSuggestions() {
     return this.props.suggestions.map((place, index) => {
@@ -43,7 +52,7 @@ class SearchInput extends React.Component {
               <Icon style={styles.placeIcon} name="place" size={24} color={colors.secondaryText} />
               <Text style={{ flex: 1 }} numberOfLines={1}>
                 <Text style={styles.mainText}>{terms[0].value}</Text>
-                {` ${terms.slice(1).map((t) => t.value).join(', ')}`}
+                {` ${terms.slice(1).map(t => t.value).join(', ')}`}
               </Text>
             </View>
           </Touchable>
@@ -78,13 +87,5 @@ class SearchInput extends React.Component {
     );
   }
 }
-
-SearchInput.propTypes = {
-  onBack: PropTypes.func,
-  onChangeText: PropTypes.func,
-  onPress: PropTypes.func,
-  suggestions: PropTypes.array,
-  style: PropTypes.object,
-};
 
 export default SearchInput;

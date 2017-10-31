@@ -1,11 +1,22 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 import {
   Animated,
   Easing,
 } from 'react-native';
 import logo from '../../images/logo.png';
 
-class AnimatedLogo extends React.Component {
+
+type Props = {
+  onEnd: Function,
+  size: number,
+};
+
+type State = {
+  rotateValue: number,
+};
+
+class AnimatedLogo extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -24,6 +35,8 @@ class AnimatedLogo extends React.Component {
       this.runAnimation();
     }
   }
+
+  props: Props;
 
   runAnimation() {
     this.state.rotateValue.setValue(0);
@@ -53,10 +66,5 @@ class AnimatedLogo extends React.Component {
     );
   }
 }
-
-AnimatedLogo.propTypes = {
-  onEnd: PropTypes.func,
-  size: PropTypes.number,
-};
 
 export default AnimatedLogo;

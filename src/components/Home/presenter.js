@@ -1,11 +1,13 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 import {
   Alert,
-  BackAndroid,
+  BackHandler,
   Dimensions,
   Linking,
   Text,
   View,
+  ToastAndroid,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,10 +25,34 @@ const ASPECT_RATIO = width / height;
 const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
 const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
-class Home extends React.Component {
+type Props = {
+  getNearbyPlaces: Function,
+  getNearbyPlaces: Function,
+  getNextPlace: Function,
+  resetArea: Function,
+  latitude: number,
+  longitude: number,
+  locationLocked: Bool,
+  places: Array,
+  index: number,
+  isAreaSearch: Bool,
+};
+
+type State = {
+  loading: Boolean,
+  search: Boolean,
+  onExit: Boolean,
+};
+
+class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    this.state = { loading: true, search: false };
+    this.state = {
+      loading: true,
+      search: false,
+      onExit: false,
+    };
+    this.handleBackButton = this.handleBackButton.bind(this);
   }
 
   componentDidMount() {
@@ -35,18 +61,25 @@ class Home extends React.Component {
     if (locationLocked) {
       // HACK: Shamefully map doesn't load instantly, thus ugly hack
       this.mapLoadTimer = setTimeout(() => {
-        this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
+        this.map.animateToRegion({
+          latitude, longitude, latitudeDelta, longitudeDelta,
+        });
         this.props.getNearbyPlaces({ latitude, longitude });
       }, 5000);
     }
 
-    BackAndroid.addEventListener('hardwareBackPress', () => this.handleBackButton());
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    this.interval = setInterval(() => this.setState({ onExit: false }), 5000);
   }
 
   componentDidUpdate(prevProps) {
-    const { latitude, longitude, places, index } = this.props;
+    const {
+      latitude, longitude, places, index,
+    } = this.props;
     if (!prevProps.locationLocked && this.props.locationLocked) {
-      this.map.animateToRegion({ latitude, longitude, latitudeDelta, longitudeDelta });
+      this.map.animateToRegion({
+        latitude, longitude, latitudeDelta, longitudeDelta,
+      });
       this.props.getNearbyPlaces({ latitude, longitude });
     } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
       this.props.getNearbyPlaces({ latitude, longitude });
@@ -71,8 +104,11 @@ class Home extends React.Component {
 
   componentWillUnmount() {
     clearTimeout(this.mapLoadTimer);
-    BackAndroid.removeEventListener('hardwareBackPress', () => this.handleBackButton());
+    clearInterval(this.interval);
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   }
+
+  props: Props;
 
   handleBackButton() {
     if (this.state.search) {
@@ -84,8 +120,17 @@ class Home extends React.Component {
       this.props.resetArea();
       return true;
     }
-
-    return false;
+    if (!this.state.onExit) {
+      ToastAndroid.show('Press Back Button Again To Exit', ToastAndroid.LONG);
+      this.setState({
+        onExit: true,
+      });
+      return true;
+    }
+    if (this.state.onExit) {
+      return false;
+    }
+    return true;
   }
 
   handleNavigate() {
@@ -96,7 +141,7 @@ class Home extends React.Component {
       Alert.alert(
         'An error occurred',
         err,
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
     });
   }
@@ -104,7 +149,7 @@ class Home extends React.Component {
   renderRating(rating) {
     if (rating) {
       const stars = [];
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 5; i += 1) {
         stars.push((
           <Icon
             name={Math.round(rating) > i ? 'star' : 'star-border'}
@@ -263,17 +308,5 @@ class Home extends React.Component {
     );
   }
 }
-
-Home.propTypes = {
-  getNextPlace: PropTypes.func,
-  getNearbyPlaces: PropTypes.func,
-  resetArea: PropTypes.func,
-  latitude: PropTypes.number,
-  longitude: PropTypes.number,
-  locationLocked: PropTypes.bool,
-  places: PropTypes.array,
-  index: PropTypes.number,
-  isAreaSearch: PropTypes.bool,
-};
 
 export default Home;

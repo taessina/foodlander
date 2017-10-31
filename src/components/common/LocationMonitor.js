@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as locationActionCreators } from '../../ducks/location';
@@ -8,7 +9,15 @@ const TWO_MINUTES = 2 * 60 * 1000;
 const NETWORK_PROVIDER = 'NETWORK_PROVIDER';
 const GPS_PROVIDER = 'GPS_PROVIDER';
 
-class LocationMonitor extends React.Component {
+type Props = {
+  getArea: Fucntion,
+  setLocation: Function,
+  coordinate: Object,
+  timestamp: number,
+  provider: string,
+};
+
+class LocationMonitor extends React.Component<Props, void> {
   componentDidMount() {
     // Get a quick location
     this.getLocationByNetwork();
@@ -25,7 +34,7 @@ class LocationMonitor extends React.Component {
 
   getLocationByNetwork() {
     navigator.geolocation.getCurrentPosition(
-      (position) => this.handleNewLocation(position, NETWORK_PROVIDER),
+      position => this.handleNewLocation(position, NETWORK_PROVIDER),
       () => this.handleError(NETWORK_PROVIDER),
     );
   }
@@ -34,9 +43,9 @@ class LocationMonitor extends React.Component {
     const options = { enableHighAccuracy: true, distanceFilter: 500 };
     if (watch) {
       this.gpsWatcher = navigator.geolocation.watchPosition(
-        (position) => this.handleNewLocation(position, GPS_PROVIDER),
+        position => this.handleNewLocation(position, GPS_PROVIDER),
         () => this.handleError(GPS_PROVIDER),
-        options
+        options,
       );
     } else {
       navigator.geolocation.getCurrentPosition(
@@ -45,7 +54,7 @@ class LocationMonitor extends React.Component {
           this.getLocationByGPS(true);
         },
         () => this.handleError(GPS_PROVIDER),
-        options
+        options,
       );
     }
   }
@@ -109,19 +118,12 @@ class LocationMonitor extends React.Component {
     }
   }
 
-  render() {
-    return null;
-  }
-}
+props: Props;
 
-LocationMonitor.propTypes = {
-  getArea: PropTypes.func,
-  setLocation: PropTypes.func,
-  getNearbyPlaces: PropTypes.func,
-  coordinate: PropTypes.object,
-  timestamp: PropTypes.number,
-  provider: PropTypes.string,
-};
+render() {
+  return null;
+}
+}
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -131,6 +133,6 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect((state) => ({
+export default connect(state => ({
   ...state.location,
 }), mapDispatchToProps)(LocationMonitor);
