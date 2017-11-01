@@ -1,74 +1,23 @@
-import React, { PropTypes } from 'react';
-import {
-  BackAndroid,
-  NavigationExperimental,
-  Text,
-} from 'react-native';
+// @flow
+import React from 'react';
 import { connect } from 'react-redux';
-import { actionCreators as navActionCreators } from './ducks/navigation';
-import Home from './components/Home';
-import Splashscreen from './components/Splashscreen';
+import { addNavigationHelpers, StackNavigator, type NavigationState } from 'react-navigation';
+import Home from './containers/Home';
 
-class Navigator extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handlers = [];
-  }
+export const Navigator = StackNavigator({
+  Home: { screen: Home },
+}, { headerMode: 'none' });
 
-  componentDidMount() {
-    BackAndroid.addEventListener('hardwareBackPress', () => this.handleBackButton());
-  }
+type Props = { dispatch: Function, nav: NavigationState };
 
-  componentWillUnmount() {
-    BackAndroid.removeEventListener('hardwareBackPress', () => this.handleBackButton());
-  }
+const NavigatorWithState = (props: Props) => (
+  <Navigator navigation={addNavigationHelpers({
+    dispatch: props.dispatch,
+    state: props.nav,
+  })}
+  />
+);
 
-  handleBackButton() {
-    if (this.props.navigationState.index > 1) { // Never go back to splashscreen
-      this.props.dispatch(navActionCreators.doNavigatePop());
-      return true;
-    }
+const mapStateToProps = state => ({ nav: state.nav });
 
-    return false;
-  }
-
-  renderScene(props) {
-    const sceneState = props.scene.route;
-
-    if (sceneState.key === 'splashscreen') {
-      return <Splashscreen />;
-    }
-    if (sceneState.key === 'index') {
-      return <Home />;
-    }
-
-    return <Text>404</Text>;
-  }
-
-  render() {
-    return (
-      <NavigationExperimental.CardStack
-        direction="vertical"
-        cardStyle={{ backgroundColor: '#CCEEFF' }}
-        renderScene={props => this.renderScene(props)}
-        navigationState={this.props.navigationState}
-        onNavigateBack={() => {
-          this.props.dispatch(navActionCreators.doNavigatePop());
-        }}
-      />
-    );
-  }
-}
-
-Navigator.propTypes = {
-  navigationState: PropTypes.object,
-  dispatch: PropTypes.func,
-};
-
-function select(store) {
-  return {
-    navigationState: store.navigation,
-  };
-}
-
-export default connect(select)(Navigator);
+export default connect(mapStateToProps)(NavigatorWithState);

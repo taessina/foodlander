@@ -1,7 +1,8 @@
-import createStyleSheet from '../common/createStyleSheet';
-import colors from '../common/color';
+// @flow
+import { StyleSheet } from 'react-native';
+import colors from '../../themes/color';
 
-export default createStyleSheet({
+export default StyleSheet.create({
   card: {
     height: 48,
     backgroundColor: '#FFF',
@@ -20,7 +21,6 @@ export default createStyleSheet({
   },
   areaText: {
     fontSize: 20,
-    fontFamily: 'sans-serif-medium',
   },
   searchInput: {
     flex: 1,
@@ -43,6 +43,5 @@ export default createStyleSheet({
   },
   mainText: {
     fontWeight: 'bold',
-    fontFamily: 'sans-serif-medium',
   },
 });

@@ -1,6 +1,7 @@
-import createStyleSheet from '../common/createStyleSheet';
+// @flow
+import { StyleSheet } from 'react-native';
 
-export default createStyleSheet({
+export default StyleSheet.create({
   card: {
     height: 48,
     backgroundColor: '#FFF',
@@ -18,6 +19,5 @@ export default createStyleSheet({
   },
   areaText: {
     fontSize: 20,
-    fontFamily: 'sans-serif-medium',
   },
 });
