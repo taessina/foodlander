@@ -2,9 +2,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { addNavigationHelpers, StackNavigator, type NavigationState } from 'react-navigation';
+import Splashscreen from './containers/Splashscreen';
 import Home from './containers/Home';
 
 export const Navigator = StackNavigator({
+  Splash: { screen: Splashscreen },
   Home: { screen: Home },
 }, { headerMode: 'none' });
 

@@ -5,7 +5,7 @@ import { PersistGate } from 'redux-persist/es/integration/react';
 
 import NavigatorWithState from './Navigator';
 import createStore from './redux/createStore';
-import Splashscreen from './containers/Splashscreen';
+import { Splash } from './containers/Splashscreen';
 import LocationMonitor from './components/LocationMonitor';
 
 const { persistor, store } = createStore();
@@ -13,7 +13,7 @@ const { persistor, store } = createStore();
 const App = () => (
   <Provider store={store}>
     <PersistGate
-      loading={<Splashscreen />}
+      loading={<Splash />}
       persistor={persistor}
     >
       <LocationMonitor />
