@@ -18,6 +18,7 @@ import FloatingActionButton from '../../components/FloatingActionButton';
 import colors from '../../themes/color';
 import styles from './style';
 import AnimatedBackgound from './AnimatedBackground';
+import Splashscreen from '../Splashscreen';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -29,17 +30,16 @@ type Props = {
   latitude: number,
   longitude: number,
   delta: number,
-  delta: number,
   places: Array<any>,
   index: number,
   isAreaSearch: boolean,
   locationLocked: boolean,
 };
 
-type State = { loading: boolean, search: boolean };
+type State = { search: boolean };
 
 export default class Home extends React.Component<Props, State> {
-  state = { loading: true, search: false };
+  state = { search: false };
 
   componentDidMount() {
     const {
@@ -273,12 +273,9 @@ export default class Home extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.loading) {
-      return <AnimatedLogo onEnd={() => this.setState({ loading: false })} />;
-    }
-
     return (
       <View style={styles.container}>
+        <Splashscreen />
         <MapView
           ref={(c) => { this.map = c; }}
           showsUserLocation
