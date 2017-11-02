@@ -22,8 +22,8 @@ function mapStateToProps(state) {
   return {
     places,
     index,
-    latitude: lat,
-    longitude: lng,
+    latitude: lat === null ? 0 : lat,
+    longitude: lng === null ? 0 : lng,
     isAreaSearch,
     locationLocked: coordinate !== null,
   };

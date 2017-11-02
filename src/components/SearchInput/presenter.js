@@ -35,13 +35,13 @@ export default class SearchInput extends React.Component<Props> {
   renderSuggestions() {
     return this.props.suggestions.map((place, index) => {
       const { terms } = place;
-      let termsA = '';
-      let termsB = '';
+      let tempsA = '';
+      let tempsB = '';
       if (place.place_id !== 'EMPTY') {
-        termsA = terms[0].value;
-        termsB = ` ${terms.slice(1).map(t => t.value).join(', ')}`;
+        tempsA = terms[0].value;
+        tempsB = ` ${terms.slice(1).map(t => t.value).join(', ')}`;
       } else {
-        termsA = place.description;
+        tempsA = place.description;
       }
       return (
         <View
@@ -55,8 +55,8 @@ export default class SearchInput extends React.Component<Props> {
             <View style={styles.suggestion}>
               <Icon style={styles.placeIcon} name="place" size={24} color={colors.secondaryText} />
               <Text style={{ flex: 1 }} numberOfLines={1}>
-                <Text style={styles.mainText}>{termsA}</Text>
-                {termsB}
+                <Text style={styles.mainText}>{tempsA}</Text>
+                {tempsB}
               </Text>
             </View>
           </Touchable>
