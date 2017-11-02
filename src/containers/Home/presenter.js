@@ -21,9 +21,6 @@ import AnimatedBackgound from './AnimatedBackground';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
-const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
-const longitudeDelta = latitudeDelta * ASPECT_RATIO;
-
 
 type Props = {
   getNextPlace: Function,
@@ -31,10 +28,12 @@ type Props = {
   resetArea: Function,
   latitude: number,
   longitude: number,
-  locationLocked: boolean,
+  delta: number,
+  delta: number,
   places: Array<any>,
   index: number,
   isAreaSearch: boolean,
+  locationLocked: boolean,
 };
 
 type State = { loading: boolean, search: boolean };
@@ -43,7 +42,12 @@ export default class Home extends React.Component<Props, State> {
   state = { loading: true, search: false };
 
   componentDidMount() {
-    const { latitude, longitude, locationLocked } = this.props;
+    const {
+      latitude, longitude, locationLocked,
+    } = this.props;
+
+    const latitudeDelta = 0.005; // Approx. viewport of 500m horizontally
+    const longitudeDelta = latitudeDelta * ASPECT_RATIO;
 
     if (locationLocked) {
       // HACK: Shamefully map doesn't load instantly, thus ugly hack
@@ -60,12 +64,19 @@ export default class Home extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const {
-      latitude, longitude, places, index,
+      latitude, longitude, delta, places, index,
     } = this.props;
+
+    const latitudeDelta = delta; // Approx. viewport of 500m horizontally
+    const longitudeDelta = latitudeDelta * ASPECT_RATIO;
+
     if (!prevProps.locationLocked && this.props.locationLocked) {
       if (this.map) {
         this.map.animateToRegion({
-          latitude, longitude, latitudeDelta, longitudeDelta,
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005 * ASPECT_RATIO,
         });
       }
       this.props.getNearbyPlaces({ latitude, longitude });
@@ -75,8 +86,8 @@ export default class Home extends React.Component<Props, State> {
         this.map.animateToRegion({
           latitude,
           longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01 * ASPECT_RATIO,
+          latitudeDelta,
+          longitudeDelta,
         });
       }
     } else if (prevProps.index !== index) {
@@ -85,8 +96,8 @@ export default class Home extends React.Component<Props, State> {
         this.map.animateToRegion({
           latitude: place.latitude,
           longitude: place.longitude,
-          latitudeDelta,
-          longitudeDelta,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005 * ASPECT_RATIO,
         });
       }
     }

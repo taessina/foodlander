@@ -22,8 +22,9 @@ function mapStateToProps(state) {
   return {
     places,
     index,
-    latitude: lat === null ? 0 : lat,
-    longitude: lng === null ? 0 : lng,
+    latitude: lat === null ? 10 : lat,
+    longitude: lng === null ? 110 : lng,
+    delta: lat === null ? 50 : 0.01,
     isAreaSearch,
     locationLocked: coordinate !== null,
   };
