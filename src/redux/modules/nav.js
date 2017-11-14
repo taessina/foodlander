@@ -6,6 +6,5 @@ const initialState = Navigator.router.getStateForAction(Navigator.router.getActi
 
 export default function reducer(state: NavigationState = initialState, action: NavigationAction) {
   const nextState = Navigator.router.getStateForAction(action, state);
-
   return nextState || state;
 }
