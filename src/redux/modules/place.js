@@ -24,21 +24,50 @@ type State = {
   places: Array<Place>;
   index: ?number;
   area: Area;
+  modal: boolean;
+  photos: String[];
+  extPlaces: Array<Place>;
 };
 
 type SetPlacesAction = {
   type: string;
   places: Array<Place>;
-}
+};
 
 type SetAreaAction = {
   type: string;
   area: Area;
 };
 
-type Action = SetPlacesAction & SetAreaAction ;
+type SetResAction = {
+  type: string;
+  modal: boolean;
+};
+
+type SetPhotosAction = {
+  type: string;
+  photos: String[];
+};
+
+type HideModalAction = {
+  type: string;
+  modal: boolean;
+};
+
+type DumpPhotoAction = {
+  type: string;
+};
+
+type UpdateIndexAction = {
+  type: string;
+  index: number;
+};
+
+type Action = SetPlacesAction & SetAreaAction & SetResAction & SetPhotosAction & HideModalAction &
+UpdateIndexAction;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
+const PLACES_DETAIL_API = 'https://maps.googleapis.com/maps/api/place/details/json?';
 const GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
 const key = Config.GOOGLE_MAPS_API_KEY;
 
@@ -57,10 +86,32 @@ const cafesQuery = {
   types: 'cafe',
 };
 
+// extendedQuery
+const extQuery = {
+  key,
+  radius: 4000,
+};
+
+const extRestaurantsQuery = {
+  ...extQuery,
+  types: 'restaurant',
+};
+
+const extCafesQuery = {
+  ...extQuery,
+  types: 'cafe',
+};
+
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
 const PLACES_SET = 'place/PLACES_SET';
+const EXT_PLACES_SET = 'place/EXT_PLACES_SET';
 const AREA_SET = 'place/AREA_SET';
 const AREA_RESET = 'place/AREA_RESET';
+const RES_SELECTED = 'place/RES_SELECTED';
+const SET_PHOTOS = 'place/SET_PHOTOS';
+const HIDE_MODAL = 'place/HIDE_MODAL';
+const DUMP_PHOTO = 'place/DUMP_PHOTO';
+const UPDATE_INDEX = 'place/UPDATE_INDEX';
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -85,6 +136,13 @@ function doSetPlaces(places: Array<Place>): SetPlacesAction {
   };
 }
 
+function doSetExtendedPlaces(places: Array<Place>): SetPlacesAction {
+  return {
+    type: EXT_PLACES_SET,
+    places,
+  };
+}
+
 function doGetNextPlace() {
   return {
     type: SELETED_PLACE_SET,
@@ -101,6 +159,40 @@ function doSetArea(area: Area): SetAreaAction {
 function doResetArea() {
   return {
     type: AREA_RESET,
+  };
+}
+
+function doSetRes(modal: boolean): SetResAction {
+  return {
+    type: RES_SELECTED,
+    modal,
+  };
+}
+
+function doSetPhotos(photos: String[]): SetPhotosAction {
+  return {
+    type: SET_PHOTOS,
+    photos,
+  };
+}
+
+function doHideModal(modal: boolean): HideModalAction {
+  return {
+    type: HIDE_MODAL,
+    modal,
+  };
+}
+
+function doDumpPhoto(): DumpPhotoAction {
+  return {
+    type: DUMP_PHOTO,
+  };
+}
+
+function doUpdateIndex(index: number): UpdateIndexAction {
+  return {
+    type: UPDATE_INDEX,
+    index,
   };
 }
 
@@ -146,6 +238,37 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
   };
 }
 
+function doGetExtendedPlaces({ latitude: lat, longitude: lng }: Object) {
+  return (dispatch: Function): void => {
+    Promise.all([
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...extRestaurantsQuery,
+      }),
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...extCafesQuery,
+      }),
+    ]).then((results) => {
+      const places = [...results[0], ...results[1]];
+      dispatch(doSetExtendedPlaces(places.map((place: Place) => {
+        const { lat: latitude, lng: longitude } = place.geometry.location;
+        return {
+          latitude,
+          longitude,
+          ...place,
+        };
+      })));
+    }).catch(() => {
+      // Retry 5s later, inhibiting errors
+      setTimeout(
+        () => dispatch(doGetExtendedPlaces({ latitude: lat, longitude: lng })),
+        5000,
+      );
+    });
+  };
+}
+
 function doGetPlacesNearArea(keywords: Array<Object>) {
   return (dispatch: Function): void => {
     dispatch(doSetArea({ keyword: keywords[0].value }));
@@ -174,10 +297,33 @@ function doGetPlacesNearArea(keywords: Array<Object>) {
   };
 }
 
+function doMarkerSelected(id: String) {
+  return (dispatch: Function): void => {
+    const params = { placeid: id, key };
+    fetch(`${PLACES_DETAIL_API}${querystring.stringify(params)}`)
+      .then(response => response.json())
+      .then((data) => {
+        if (data.status === 'OK') {
+          dispatch(doSetRes(true));
+          const { photos: photoRef } = data.result;
+          const tempPhotoRef = photoRef.map(photo => photo.photo_reference);
+          dispatch(doSetPhotos(tempPhotoRef));
+          return data.result;
+        }
+        throw data.status;
+      })
+      .catch(() => {
+      });
+  };
+}
+
 const initialState = {
   index: null,
   places: [],
   area: {},
+  modal: false,
+  photos: [],
+  extPlaces: [], // extended places
 };
 
 function applySetPlaces(state: State, action: SetPlacesAction) {
@@ -217,8 +363,63 @@ function applySetArea(state: State, action: SetAreaAction) {
   };
 }
 
-function applyResetArea(state) {
+function applyResetArea(state: State) {
   return { ...state, area: {} };
+}
+
+function applySetRestaurant(state: State, action: SetResAction) {
+  return { ...state, modal: action.modal };
+}
+
+function applySetPhotos(state: State, action: SetPhotosAction) {
+  return { ...state, photos: action.photos };
+}
+
+function applyHideModal(state: State, action: HideModalAction) {
+  return { ...state, modal: action.modal };
+}
+
+function applyDumpPhoto(state: State) {
+  return { ...state, photos: [] };
+}
+
+function applyUpdateIndex(state: State, action: UpdateIndexAction) {
+  return { ...state, index: action.index };
+}
+
+function applySetExtendedPlaces(state: State, action: SetPlacesAction) {
+  const { places } = action;
+  const newPlaces = places.filter((place, index, array) => {
+    if (place.permanently_closed) {
+      return false;
+    } else if (place.opening_hours && !place.opening_hours.open_now) {
+      return false;
+    }
+
+    if (array.findIndex(p => p.place_id === place.place_id) === index) {
+      return true;
+    }
+
+    return false;
+  });
+
+  // extract the extended places
+  const extended = [];
+  for (let i = 0; i < newPlaces.length; i += 1) {
+    const { place_id: newPlace } = newPlaces[i];
+    let found = false;
+    for (let u = 0; u < state.places.length; u += 1) {
+      const { place_id: prevPlace } = state.places[u];
+      if (newPlace === prevPlace) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      extended.push(newPlaces[i]);
+    }
+  }
+  return { ...state, extPlaces: shuffle(extended), index: null };
 }
 
 function reducer(state: State = initialState, action: Action): State {
@@ -231,6 +432,18 @@ function reducer(state: State = initialState, action: Action): State {
       return applySetArea(state, action);
     case AREA_RESET:
       return applyResetArea(state);
+    case RES_SELECTED:
+      return applySetRestaurant(state, action);
+    case SET_PHOTOS:
+      return applySetPhotos(state, action);
+    case HIDE_MODAL:
+      return applyHideModal(state, action);
+    case DUMP_PHOTO:
+      return applyDumpPhoto(state);
+    case UPDATE_INDEX:
+      return applyUpdateIndex(state, action);
+    case EXT_PLACES_SET:
+      return applySetExtendedPlaces(state, action);
     default:
       return state;
   }
@@ -241,6 +454,11 @@ const actionCreators = {
   doGetNextPlace,
   doGetPlacesNearArea,
   doResetArea,
+  doMarkerSelected,
+  doHideModal,
+  doDumpPhoto,
+  doUpdateIndex,
+  doGetExtendedPlaces,
 };
 
 const actionTypes = {

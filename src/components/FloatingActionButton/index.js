@@ -64,7 +64,6 @@ export default class FloatingActionButton extends React.Component<Props, State> 
       ],
       elevation: this.state.elevation,
     };
-
     return (
       <View style={[styles.container, styles[this.props.position]]}>
         <Animated.View

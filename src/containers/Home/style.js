@@ -65,4 +65,33 @@ export default StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+  resContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resMainBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 350,
+    height: 500,
+    backgroundColor: 'rgba(204,238,255,0.8)',
+  },
+  resColBox: {
+    flex: 0.80,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  resRowBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resPhoto: {
+    width: 150,
+    height: 150,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: '#000000',
+  },
 });

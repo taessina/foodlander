@@ -25,8 +25,10 @@ export default StyleSheet.create({
   },
   left: {
     alignItems: 'flex-start',
+    marginLeft: 30,
   },
   right: {
     alignItems: 'flex-end',
+    marginRight: 30,
   },
 });

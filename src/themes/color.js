@@ -2,6 +2,8 @@
 export default {
   primaryColor: '#005176',
   accentColor: '#FF0062',
+  accentColor2: '#3399FF',
+  accentColor3: '#9B50B2',
   backgroundColor: '#CCEEFF',
   statusBarColor: '#003852',
   rippleColor: '#00000042',
