@@ -94,4 +94,16 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
   },
+  favContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  favMainBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 350,
+    height: 500,
+    backgroundColor: 'rgba(204,238,255,0.8)',
+  },
 });

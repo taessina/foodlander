@@ -24,9 +24,11 @@ type State = {
   places: Array<Place>;
   index: ?number;
   area: Area;
-  modal: boolean;
+  res: boolean;
+  fav: boolean;
   photos: String[];
   extPlaces: Array<Place>;
+  listTitle: string;
 };
 
 type SetPlacesAction = {
@@ -39,7 +41,7 @@ type SetAreaAction = {
   area: Area;
 };
 
-type SetResAction = {
+type SetModalAction = {
   type: string;
   modal: boolean;
 };
@@ -63,8 +65,28 @@ type UpdateIndexAction = {
   index: number;
 };
 
-type Action = SetPlacesAction & SetAreaAction & SetResAction & SetPhotosAction & HideModalAction &
-UpdateIndexAction;
+type ResetExtPlacesAction = {
+  type: string;
+}
+
+type SetListTitleAction = {
+  type: string;
+  title: string;
+}
+
+type SetFavModeAction = {
+  type: string,
+  mode: boolean,
+}
+
+type SetFavChoosedAction = {
+  type: string,
+  title: string,
+}
+
+type Action = SetPlacesAction & SetAreaAction & SetModalAction & SetPhotosAction & HideModalAction &
+UpdateIndexAction & ResetExtPlacesAction & SetListTitleAction & SetFavChoosedAction &
+SetFavModeAction;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const PLACES_DETAIL_API = 'https://maps.googleapis.com/maps/api/place/details/json?';
@@ -107,11 +129,15 @@ const PLACES_SET = 'place/PLACES_SET';
 const EXT_PLACES_SET = 'place/EXT_PLACES_SET';
 const AREA_SET = 'place/AREA_SET';
 const AREA_RESET = 'place/AREA_RESET';
-const RES_SELECTED = 'place/RES_SELECTED';
+const SET_RES = 'place/RES_SELECTED';
+const SET_FAV = 'place/FAV_SELECTED';
 const SET_PHOTOS = 'place/SET_PHOTOS';
-const HIDE_MODAL = 'place/HIDE_MODAL';
 const DUMP_PHOTO = 'place/DUMP_PHOTO';
 const UPDATE_INDEX = 'place/UPDATE_INDEX';
+const EXT_RESET = 'place/EXT_RESET';
+const SET_LIST_TITLE = 'place/SET_LIST_TITLE';
+const SET_FAV_MODE = 'place/SET_FAV_MODE';
+const SET_FAV_CHOOSED = 'place/SET_FAV_CHOOSED';
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -162,9 +188,16 @@ function doResetArea() {
   };
 }
 
-function doSetRes(modal: boolean): SetResAction {
+function doSetRes(modal: boolean): SetModalAction {
   return {
-    type: RES_SELECTED,
+    type: SET_RES,
+    modal,
+  };
+}
+
+function doSetFav(modal: boolean): SetModalAction {
+  return {
+    type: SET_FAV,
     modal,
   };
 }
@@ -173,13 +206,6 @@ function doSetPhotos(photos: String[]): SetPhotosAction {
   return {
     type: SET_PHOTOS,
     photos,
-  };
-}
-
-function doHideModal(modal: boolean): HideModalAction {
-  return {
-    type: HIDE_MODAL,
-    modal,
   };
 }
 
@@ -196,6 +222,34 @@ function doUpdateIndex(index: number): UpdateIndexAction {
   };
 }
 
+function doResetExtPlaces(): ResetExtPlacesAction {
+  return {
+    type: EXT_RESET,
+  };
+}
+
+function doSetListTitle(title: string): SetListTitleAction {
+  return {
+    type: SET_LIST_TITLE,
+    title,
+  };
+}
+
+function doSetFavMode(mode: boolean): SetFavModeAction {
+  return {
+    type: SET_FAV_MODE,
+    mode,
+  };
+}
+
+function doSetFavChoosed(title: string): SetFavChoosedAction {
+  return {
+    type: SET_FAV_CHOOSED,
+    title,
+  };
+}
+
+// fetch nearby places
 function fetchPlaces(params) {
   return fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
     .then(response => response.json())
@@ -207,6 +261,7 @@ function fetchPlaces(params) {
     });
 }
 
+// get nearby places by calling fetchPlaces
 function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
   return (dispatch: Function): void => {
     Promise.all([
@@ -238,6 +293,7 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
   };
 }
 
+// get Extended Places by calling fetch places
 function doGetExtendedPlaces({ latitude: lat, longitude: lng }: Object) {
   return (dispatch: Function): void => {
     Promise.all([
@@ -297,17 +353,26 @@ function doGetPlacesNearArea(keywords: Array<Object>) {
   };
 }
 
+// when marker selected, fetch address_components, and photos
 function doMarkerSelected(id: String) {
   return (dispatch: Function): void => {
     const params = { placeid: id, key };
+    let listTitle = '';
     fetch(`${PLACES_DETAIL_API}${querystring.stringify(params)}`)
       .then(response => response.json())
       .then((data) => {
         if (data.status === 'OK') {
           dispatch(doSetRes(true));
-          const { photos: photoRef } = data.result;
+          const { photos: photoRef, address_components: address } = data.result;
+          address.map((components) => {
+            if ((components.types[0] === 'locality') && (components.types[1] === 'political')) {
+              listTitle = components.long_name;
+            }
+            return null;
+          });
           const tempPhotoRef = photoRef.map(photo => photo.photo_reference);
           dispatch(doSetPhotos(tempPhotoRef));
+          dispatch(doSetListTitle(listTitle));
           return data.result;
         }
         throw data.status;
@@ -321,9 +386,13 @@ const initialState = {
   index: null,
   places: [],
   area: {},
-  modal: false,
+  res: false,
+  fav: false,
   photos: [],
   extPlaces: [], // extended places
+  listTitle: '',
+  favMode: false,
+  favChoosed: '',
 };
 
 function applySetPlaces(state: State, action: SetPlacesAction) {
@@ -367,26 +436,32 @@ function applyResetArea(state: State) {
   return { ...state, area: {} };
 }
 
-function applySetRestaurant(state: State, action: SetResAction) {
-  return { ...state, modal: action.modal };
+// turns Restaurant modal on / off
+function applySetRestaurant(state: State, action: SetModalAction) {
+  return { ...state, res: action.modal };
 }
 
+// turn favourite menu modal on / off
+function applySetFav(state: State, action: SetModalAction) {
+  return { ...state, fav: action.modal };
+}
+
+// store fetched photos into array
 function applySetPhotos(state: State, action: SetPhotosAction) {
   return { ...state, photos: action.photos };
 }
 
-function applyHideModal(state: State, action: HideModalAction) {
-  return { ...state, modal: action.modal };
-}
-
+// empty photo array
 function applyDumpPhoto(state: State) {
   return { ...state, photos: [] };
 }
+
 
 function applyUpdateIndex(state: State, action: UpdateIndexAction) {
   return { ...state, index: action.index };
 }
 
+// store extended places into state array
 function applySetExtendedPlaces(state: State, action: SetPlacesAction) {
   const { places } = action;
   const newPlaces = places.filter((place, index, array) => {
@@ -419,7 +494,27 @@ function applySetExtendedPlaces(state: State, action: SetPlacesAction) {
       extended.push(newPlaces[i]);
     }
   }
-  return { ...state, extPlaces: shuffle(extended), index: null };
+  return { ...state, extPlaces: shuffle(extended) };
+}
+
+// empty extended places array
+function applyResetExtPlaces(state: State) {
+  return { ...state, extPlaces: [] };
+}
+
+// change list title to current list title
+function applySetListTitle(state: State, action: SetListTitleAction) {
+  return { ...state, listTitle: action.title };
+}
+
+// turn favourite mode on / off
+function applySetFavMode(state: State, action: SetFavModeAction) {
+  return { ...state, favMode: action.mode };
+}
+
+// store choosed favourite list title
+function applySetFavChoosed(state: State, action: SetFavChoosedAction) {
+  return { ...state, favChoosed: action.title };
 }
 
 function reducer(state: State = initialState, action: Action): State {
@@ -432,18 +527,26 @@ function reducer(state: State = initialState, action: Action): State {
       return applySetArea(state, action);
     case AREA_RESET:
       return applyResetArea(state);
-    case RES_SELECTED:
+    case SET_RES:
       return applySetRestaurant(state, action);
+    case SET_FAV:
+      return applySetFav(state, action);
     case SET_PHOTOS:
       return applySetPhotos(state, action);
-    case HIDE_MODAL:
-      return applyHideModal(state, action);
     case DUMP_PHOTO:
       return applyDumpPhoto(state);
     case UPDATE_INDEX:
       return applyUpdateIndex(state, action);
     case EXT_PLACES_SET:
       return applySetExtendedPlaces(state, action);
+    case EXT_RESET:
+      return applyResetExtPlaces(state);
+    case SET_LIST_TITLE:
+      return applySetListTitle(state, action);
+    case SET_FAV_MODE:
+      return applySetFavMode(state, action);
+    case SET_FAV_CHOOSED:
+      return applySetFavChoosed(state, action);
     default:
       return state;
   }
@@ -455,10 +558,15 @@ const actionCreators = {
   doGetPlacesNearArea,
   doResetArea,
   doMarkerSelected,
-  doHideModal,
+  doSetRes,
+  doSetFav,
   doDumpPhoto,
   doUpdateIndex,
   doGetExtendedPlaces,
+  doResetExtPlaces,
+  doSetListTitle,
+  doSetFavMode,
+  doSetFavChoosed,
 };
 
 const actionTypes = {

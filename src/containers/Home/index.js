@@ -5,7 +5,7 @@ import Home from './presenter';
 
 function mapStateToProps(state) {
   const {
-    places, index, area, modal, extPlaces,
+    places, index, area, res, extPlaces, favMode, favChoosed,
   } = state.place;
 
   const { coordinate } = state.location;
@@ -26,7 +26,7 @@ function mapStateToProps(state) {
   }
 
   return {
-    modal,
+    resModal: res,
     places,
     extPlaces,
     index,
@@ -36,6 +36,8 @@ function mapStateToProps(state) {
     isAreaSearch,
     locationLocked: coordinate !== null,
     favouriteList,
+    favMode,
+    favChoosed,
   };
 }
 
@@ -44,9 +46,10 @@ const mapDispatchToProps = {
   getNextPlace: placeActionCreators.doGetNextPlace,
   resetArea: placeActionCreators.doResetArea,
   doMarkerSelected: placeActionCreators.doMarkerSelected,
-  doHideModal: placeActionCreators.doHideModal,
-  doUpdateIndex: placeActionCreators.doUpdateIndex,
   getExtendedPlace: placeActionCreators.doGetExtendedPlaces,
+  resetExtPlaces: placeActionCreators.doResetExtPlaces,
+  doSetFav: placeActionCreators.doSetFav,
+  doSetFavMode: placeActionCreators.doSetFavMode,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
