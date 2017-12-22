@@ -8,21 +8,24 @@ import {
   Text,
   View,
   ToastAndroid,
+  TouchableOpacity,
+  ScrollView,
+  Image,
 } from 'react-native';
 import MapView from 'react-native-maps';
+import Config from 'react-native-config';
+import querystring from 'query-string';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SearchInput from '../../components/SearchInput';
 import SearchBar from '../../components/SearchBar';
-import Touchable from '../../components/F8Touchable';
+import F8Touchable from '../../components/F8Touchable';
 import AnimatedLogo from '../../components/AnimatedLogo';
 import FloatingActionButton from '../../components/FloatingActionButton';
-import CornerActionButton from '../../components/CornerActionButton';
 import colors from '../../themes/color';
 import styles from './style';
 import AnimatedBackgound from './AnimatedBackground';
 import Splashscreen from '../Splashscreen';
-import Restaurant from './Restaurant';
-import FavList from './FavList';
+import FavList from '../Favorite/FavList';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -42,54 +45,70 @@ type Place = {
 type Props = {
   getNextPlace: Function,
   getExtendedPlace: Function,
+  getFocusedPlace: Function,
   getNearbyPlaces: Function,
   resetArea: Function,
   resetExtPlaces: Function,
-  doMarkerSelected: Function,
+  doPlaceSelected: Function,
   doSetFav: Function,
   doSetFavMode: Function,
+  doSetFavChoosed: Function,
+  doCreateNewList: Function,
+  doAddNewPlace: Function,
+  doRemoveList: Function,
+  doRemovePlace: Function,
   latitude: number,
   longitude: number,
   delta: number,
   places: Array<any>,
   extPlaces: Array<any>,
+  focPlaces: Array<any>,
   index: number,
   isAreaSearch: boolean,
   locationLocked: boolean,
-  resModal: boolean,
   favouriteList: Object[],
   favMode: boolean,
   favChoosed: string,
+  favMenu: boolean,
+  photos: string[],
+  listTitle: string[],
 };
 
 type State = {
   search: boolean,
   favouritePlaces: Object[],
   maxIndex: number,
-  renderCABLeft: boolean,
   extendedIndex: number,
+  focusedIndex: number,
   favouriteIndex: number,
-  currentPlace: Place,
+  photos: String[],
+  displayPhotos: boolean,
+  isFetchingPhoto: boolean,
+  isFetched: boolean,
+  listFound: boolean,
+  range: Object,
+  currentLoc: {latitude: number, longitude: number, latitudeDelta: number, longitudeDelta: number},
 };
+
+const PLACES_PHOTO_API = 'https://maps.googleapis.com/maps/api/place/photo?';
+const key = Config.GOOGLE_MAPS_API_KEY;
 
 export default class Home extends React.Component<Props, State> {
   state = {
     search: false,
     favouritePlaces: [],
     maxIndex: 10,
-    renderCABLeft: false,
     extendedIndex: -10,
+    focusedIndex: -10,
     favouriteIndex: -10,
-    currentPlace: {
-      latitude: 0,
-      longitude: 0,
-      name: '',
-      opening_hours: { open_now: false },
-      permanently_closed: false,
-      place_id: '',
-      rating: 0,
-      vicinity: '',
-      geometry: {},
+    photos: [],
+    displayPhotos: false,
+    isFetchingPhoto: false,
+    isFetched: false,
+    listFound: false,
+    range: { desc: 'default', value: 2000 },
+    currentLoc: {
+      latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0,
     },
   };
 
@@ -103,10 +122,8 @@ export default class Home extends React.Component<Props, State> {
 
     if (locationLocked) {
       // HACK: Shamefully map doesn't load instantly, thus ugly hack
+      this.updateLocation(latitude, longitude, latitudeDelta, longitudeDelta);
       this.mapLoadTimer = setTimeout(() => {
-        this.map.animateToRegion({
-          latitude, longitude, latitudeDelta, longitudeDelta,
-        });
         this.props.getNearbyPlaces({ latitude, longitude });
       }, 10000);
     }
@@ -123,69 +140,41 @@ export default class Home extends React.Component<Props, State> {
 
     if (!prevProps.locationLocked && this.props.locationLocked) {
       if (this.map) {
-        this.map.animateToRegion({
-          latitude,
-          longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005 * ASPECT_RATIO,
-        });
+        this.updateLocation(latitude, longitude, 0.005, 0.005 * ASPECT_RATIO);
       }
     } else if (prevProps.latitude !== latitude || prevProps.longitude !== longitude) {
       this.props.getNearbyPlaces({ latitude, longitude });
       if (this.map) {
-        this.map.animateToRegion({
-          latitude,
-          longitude,
-          latitudeDelta,
-          longitudeDelta,
-        });
+        this.updateLocation(latitude, longitude, latitudeDelta, longitudeDelta);
       }
-    } else if (prevProps.index !== index) {
+    } else if ((prevProps.index !== index) && (index !== null)) {
       const place = places[index];
+      const id = place.place_id;
+      this.props.doPlaceSelected(id);
+
       if (place && this.map) {
-        this.map.animateToRegion({
-          latitude: place.latitude,
-          longitude: place.longitude,
-          latitudeDelta: this.props.extPlaces.length > 0 ? 0.01 : 0.005,
-          longitudeDelta: this.props.extPlaces.length > 0 ?
-            0.01 * ASPECT_RATIO : 0.005 * ASPECT_RATIO,
-        });
+        const lat = place.latitude + 0.001;
+        const lng = place.longitude;
+        const latDelta = 0.005;
+        const lngDelta = 0.005 * ASPECT_RATIO;
+        this.updateLocation(lat, lng, latDelta, lngDelta);
       }
     }
-    // closing and opening restaurant modal
-    if ((prevProps.resModal) && (!this.props.resModal)) {
-      let place = null;
-      // if current place is not an extendedPlace
-      if (this.state.extendedIndex === -10) {
-        place = places[index];
-      } else {
-        place = this.props.extPlaces[this.state.extendedIndex];
-      }
-      if ((this.map) && (place !== null)) {
-        this.map.animateToRegion({
-          latitude: place.latitude,
-          longitude: place.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005 * ASPECT_RATIO,
-        });
-      }
+
+    if (this.props.listTitle !== '') {
+      this.checkListTitle();
     }
-    // When there's change between favourite mode and defualt mode
-    if (prevProps.favMode !== this.props.favMode) {
-      if (this.map) {
-        this.map.animateToRegion({
-          latitude,
-          longitude,
-          latitudeDelta: this.props.extPlaces.length > 0 ? 0.01 : 0.005,
-          longitudeDelta: this.props.extPlaces.length > 0 ?
-            0.01 * ASPECT_RATIO : 0.005 * ASPECT_RATIO,
-        });
-      }
-      // When in Favourite Mode
-      if (this.props.favMode) {
-        this.LoadFavouritePlaces(this.props.favChoosed);
-        this.disableCABLeft(prevState);
-      }
+
+    // when there's change between Choosed Favourite
+    if (prevProps.favChoosed !== this.props.favChoosed) {
+      this.endFavMode();
+      this.LoadFavouritePlaces(this.props.favChoosed);
+      this.disableCABLeft(prevState);
+    }
+
+    // when there's change in current location
+    if (prevState.currentLoc !== this.state.currentLoc) {
+      this.moveToCurrentLocation();
     }
   }
 
@@ -195,33 +184,20 @@ export default class Home extends React.Component<Props, State> {
   }
 
   getNextPlace() {
-    if (this.props.extPlaces.length > 0) {
-      // the ratio to jumped into extended places than old places is 3 : 1
-      let randInt = 0;
-      randInt = Math.floor(Math.random() * (4));
-      switch (randInt) {
-        case 0:
-        case 1:
-        case 2:
-          this.getNextExtended();
-          break;
-        case 3:
-          this.props.getNextPlace();
-          // reset extendedIndex to null
-          this.setState({
-            extendedIndex: -10,
-          });
-          break;
-        default:
-      }
+    this.dumpPhotos();
+    this.handleFetchPhoto('stop');
+    this.photoSwitch('manual', false);
+    if (this.state.range.desc === 'extended') {
+      this.getNextExtended();
+    } else if (this.state.range.desc === 'focused') {
+      this.getNextFocused();
     } else if (this.props.index < this.state.maxIndex) {
       this.props.getNextPlace();
     } else {
       // prompt to increase area when index > maxIndex
-      ToastAndroid.showWithGravityAndOffset('Try Somewhere Further', ToastAndroid.LONG, ToastAndroid.BOTTOM, -180, 60);
+      ToastAndroid.showWithGravityAndOffset('Try Somewhere Else', ToastAndroid.LONG, ToastAndroid.BOTTOM, 300, 550);
       this.setState({
         maxIndex: this.state.maxIndex + 20,
-        renderCABLeft: true,
       });
       this.props.getNextPlace();
     }
@@ -231,12 +207,11 @@ export default class Home extends React.Component<Props, State> {
   getNextFavourite() {
     const place = this.getFavouritePlace();
     if ((place !== null) && (this.map)) {
-      this.map.animateToRegion({
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01 * ASPECT_RATIO,
-      });
+      const latitude = place.latitude + 0.001;
+      const { longitude } = place;
+      const latitudeDelta = 0.005;
+      const longitudeDelta = 0.005 * ASPECT_RATIO;
+      this.updateLocation(latitude, longitude, latitudeDelta, longitudeDelta);
     }
   }
 
@@ -272,12 +247,23 @@ export default class Home extends React.Component<Props, State> {
   getNextExtended() {
     const place = this.getExtendedPlace();
     if ((place !== null) && (this.map)) {
-      this.map.animateToRegion({
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005 * ASPECT_RATIO,
-      });
+      const latitude = place.latitude + 0.002;
+      const { longitude } = place;
+      const latDelta = 0.01;
+      const lngDelta = 0.01 * ASPECT_RATIO;
+      this.updateLocation(latitude, longitude, latDelta, lngDelta);
+    }
+  }
+
+  // randomly animated to an focused place
+  getNextFocused() {
+    const place = this.getFocusedPlace();
+    if ((place !== null) && (this.map)) {
+      const latitude = place.latitude + 0.00015;
+      const { longitude } = place;
+      const latDelta = 0.0009;
+      const lngDelta = 0.0009 * ASPECT_RATIO;
+      this.updateLocation(latitude, longitude, latDelta, lngDelta);
     }
   }
 
@@ -301,6 +287,49 @@ export default class Home extends React.Component<Props, State> {
       extendedIndex: randIndex,
     });
     return this.props.extPlaces[randIndex];
+  }
+
+  // randomly retrieve focused Place
+  getFocusedPlace() {
+    const index = this.state.focusedIndex;
+    const max = this.props.focPlaces.length;
+    let randIndex = index;
+    let loop = true;
+    if (this.props.focPlaces.length > 1) {
+      while (loop) {
+        randIndex = Math.floor(Math.random() * (max));
+        if (randIndex !== index) {
+          loop = false;
+        }
+      }
+    } else {
+      randIndex = 0;
+    }
+    this.setState({
+      focusedIndex: randIndex,
+    });
+    return this.props.focPlaces[randIndex];
+  }
+
+  // update current latitude and longitude
+  updateLocation(lat: number, lng: number, latDelta: number, lngDelta: number) {
+    this.setState({
+      currentLoc: {
+        latitude: lat,
+        longitude: lng,
+        latitudeDelta: latDelta,
+        longitudeDelta: lngDelta,
+      },
+    });
+  }
+
+  moveToCurrentLocation() {
+    this.map.animateToRegion({
+      latitude: this.state.currentLoc.latitude,
+      longitude: this.state.currentLoc.longitude,
+      latitudeDelta: this.state.currentLoc.latitudeDelta,
+      longitudeDelta: this.state.currentLoc.longitudeDelta,
+    });
   }
 
   // hide Left Corner Action Button
@@ -330,35 +359,68 @@ export default class Home extends React.Component<Props, State> {
   escalate() {
     const { places, latitude, longitude } = this.props;
     const place = places[this.props.index];
+    let latDelta = 0;
+    let lngDelta = 0;
+    let latOffSet = 0;
 
-    this.props.getExtendedPlace({ latitude, longitude });
+    if (this.state.range.desc === 'focused') {
+      this.setState({
+        focusedIndex: -10,
+        range: { desc: 'default', value: 2000 },
+      });
+      latDelta = 0.005;
+      lngDelta = 0.005 * ASPECT_RATIO;
+      latOffSet = 0.00075;
+    } else if (this.state.range.desc === 'default') {
+      this.setState({
+        range: { desc: 'extended', value: 4000 },
+      });
+      if (this.props.extPlaces.length === 0) {
+        this.props.getExtendedPlace({ latitude, longitude });
+      }
+      latDelta = 0.01;
+      lngDelta = 0.01 * ASPECT_RATIO;
+      latOffSet = 0.001;
+    }
 
     if (place && this.map) {
-      this.map.animateToRegion({
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01 * ASPECT_RATIO,
-      });
+      const lat = this.state.currentLoc.latitude + latOffSet;
+      const lng = this.state.currentLoc.longitude;
+      this.updateLocation(lat, lng, latDelta, lngDelta);
     }
   }
 
-  // dump extended places, zoom in animation
+  // retrieve focused places or dump extended places, zoom in animation
   fall() {
-    const { places } = this.props;
+    const { places, latitude, longitude } = this.props;
     const place = places[this.props.index];
+    let latDelta = 0;
+    let lngDelta = 0;
+    let latOffSet = 0;
 
-    this.props.resetExtPlaces();
-    this.setState({
-      extendedIndex: -10,
-    });
-    if (this.map) {
-      this.map.animateToRegion({
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005 * ASPECT_RATIO,
+    if (this.state.range.desc === 'extended') {
+      this.setState({
+        extendedIndex: -10,
+        range: { desc: 'default', value: 2000 },
       });
+      latDelta = 0.005;
+      lngDelta = 0.005 * ASPECT_RATIO;
+      latOffSet = 0.001;
+    } else if (this.state.range.desc === 'default') {
+      this.setState({
+        range: { desc: 'focused', value: 500 },
+      });
+      if (this.props.focPlaces.length === 0) {
+        this.props.getFocusedPlace({ latitude, longitude });
+      }
+      latDelta = 0.0009;
+      lngDelta = 0.0009 * ASPECT_RATIO;
+      latOffSet = 0.00015;
+    }
+    if (this.map && place) {
+      const lat = place.latitude + latOffSet;
+      const lng = place.longitude;
+      this.updateLocation(lat, lng, latDelta, lngDelta);
     }
   }
 
@@ -377,47 +439,18 @@ export default class Home extends React.Component<Props, State> {
       favouritePlaces: [],
       favouriteIndex: -10,
     });
-    this.props.doSetFavMode(false);
   }
 
   map: MapView;
   mapLoadTimer: number;
 
-  markerSelected(place: Place, lat: number, lng: number) {
-    const { place_id: id } = place;
-
-    // search in places array for index
-    let index = null;
-    let extIndex = null;
-
-    for (let i = 0; i < this.props.places.length; i += 1) {
-      if (id === this.props.places[i].place_id) {
-        index = i;
-        break;
-      }
-    }
-
-    if (this.props.extPlaces.length > 0) {
-      for (let i = 0; i < this.props.extPlaces.length; i += 1) {
-        if (id === this.props.extPlaces[i].place_id) {
-          extIndex = i;
-          break;
-        }
-      }
-    }
-    if ((this.props.index === index) || (this.state.extendedIndex === extIndex)) {
-      this.props.doMarkerSelected(id);
-      this.map.animateToRegion({
-        latitude: lat,
-        longitude: lng,
-        latitudeDelta: 0.0005,
-        longitudeDelta: 0.0005 * ASPECT_RATIO,
-      });
-    }
-
-    this.setState({
-      currentPlace: place,
-    });
+  markerSelected() {
+    this.updateLocation(
+      this.state.currentLoc.latitude,
+      this.state.currentLoc.longitude,
+      this.state.currentLoc.latitudeDelta,
+      this.state.currentLoc.longitudeDelta,
+    );
   }
 
   handleNavigate() {
@@ -434,27 +467,206 @@ export default class Home extends React.Component<Props, State> {
   }
 
   handleBackButton = () => {
-    if (this.state.search) {
-      this.setState({ search: false, extendedIndex: -10 });
-      return true;
-    }
+    if (!this.props.favMode) {
+      if (this.state.search) {
+        this.setState({ search: false, extendedIndex: -10 });
+        return true;
+      }
 
-    if (this.props.isAreaSearch) {
-      this.props.resetArea();
-      this.props.resetExtPlaces();
-      // reset to initialstate
-      this.setState({
-        search: false,
-        favouritePlaces: [],
-        favouriteIndex: -10,
-        maxIndex: 10,
-        renderCABLeft: false,
-        extendedIndex: -10,
-      });
+      if (this.props.isAreaSearch) {
+        this.props.resetArea();
+        this.props.resetExtPlaces();
+        // reset to initialstate
+        this.setState({
+          search: false,
+          favouritePlaces: [],
+          favouriteIndex: -10,
+          maxIndex: 10,
+          extendedIndex: -10,
+        });
+        return true;
+      }
+    } else {
+      this.props.doSetFavMode(false);
+      this.props.doSetFavChoosed('');
       return true;
     }
 
     return false;
+  }
+
+  checkFavourite(subject: string): boolean {
+    if (this.props.favouriteList.length > 0) {
+      for (let i = 0; i < this.props.favouriteList.length; i += 1) {
+        for (let u = 0; u < this.props.favouriteList[i].items.length; u += 1) {
+          if (this.props.favouriteList[i].items[u].name === subject) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // fetch photo url using photo reference id
+  fetchPhoto(referenceId: string, index: number): void {
+    const params = {
+      photoreference: referenceId,
+      maxheight: 150,
+      maxweight: 150,
+      key,
+    };
+
+    fetch(
+      `${PLACES_PHOTO_API}${querystring.stringify(params)}`,
+      {
+        method: 'HEAD',
+      },
+    )
+      .then((response) => {
+        if (response) {
+          const tempPhotos = this.state.photos;
+          // prevent dummy photos
+          if (response.url.search('googleapis') === -1) {
+            tempPhotos.push(response.url);
+            this.setState({
+              photos: tempPhotos,
+            });
+            if (index === this.props.photos.length - 1) {
+              this.handleFetchPhoto('fetched');
+            }
+          }
+        }
+      })
+      .catch(() => {
+        // Retry 5s later, inhibiting errors
+        setTimeout(
+          this.fetchPhoto(referenceId, index),
+          5000,
+        );
+      });
+  }
+
+  photoSwitch(mode: string, statement: boolean) {
+    switch (mode) {
+      case 'auto':
+        if (this.state.displayPhotos) {
+          this.setState({
+            displayPhotos: false,
+          });
+        } else {
+          this.setState({
+            displayPhotos: true,
+          });
+        }
+        break;
+      case 'manual':
+        this.setState({
+          displayPhotos: statement,
+        });
+        break;
+      default:
+    }
+  }
+
+  dumpPhotos() {
+    this.setState({
+      photos: [],
+    });
+  }
+
+  fetchPhotoClicked() {
+    if (this.state.displayPhotos) {
+      this.handleFetchPhoto('stop');
+    } else if (this.props.photos.length > 0) {
+      this.handleFetchPhoto('fetch');
+      this.props.photos.map((item, i) => {
+        this.fetchPhoto(item, i);
+        return null;
+      });
+    }
+  }
+
+  handleFetchPhoto(mode: string) {
+    switch (mode) {
+      case 'fetch':
+        this.setState({
+          isFetchingPhoto: true,
+        });
+        break;
+      case 'fetched':
+        this.setState({
+          displayPhotos: true,
+          isFetched: true,
+          isFetchingPhoto: false,
+        });
+        break;
+      case 'stop':
+        this.setState({
+          displayPhotos: false,
+          isFetched: false,
+        });
+        break;
+      default:
+    }
+  }
+
+  checkListTitle() {
+    let found = false;
+    // check if list existed
+    for (let i = 0; i < this.props.favouriteList.length; i += 1) {
+      const title = this.props.favouriteList.map((item) => {
+        const temp = item.title;
+        return temp;
+      });
+      if (title[i] === this.props.listTitle) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      if (!this.state.listFound) {
+        this.setState({
+          listFound: true,
+        });
+      }
+    } else if (this.state.listFound) {
+      this.setState({
+        listFound: false,
+      });
+    }
+  }
+
+  retrieveList(): Object {
+    for (let i = 0; i < this.props.favouriteList.length; i += 1) {
+      const title = this.props.favouriteList.map((item) => {
+        const temp = item.title;
+        return temp;
+      });
+      if (title[i] === this.props.listTitle) {
+        return this.props.favouriteList[i];
+      }
+    }
+    return {};
+  }
+
+  favButtonPressed(isFavourite: boolean, place: Place) {
+    if (!isFavourite) {
+      if (!this.state.listFound) {
+        this.props.doCreateNewList(this.props.listTitle);
+      }
+      if (place !== null) {
+        this.props.doAddNewPlace(place, this.props.listTitle);
+      }
+    } else {
+      const currentList = this.retrieveList();
+      if (currentList.items.length === 1) {
+        this.props.doRemoveList(this.props.listTitle);
+      } else {
+        this.props.doRemovePlace(place, this.props.listTitle);
+      }
+    }
   }
 
   renderRating(rating: number) {
@@ -477,6 +689,20 @@ export default class Home extends React.Component<Props, State> {
       );
     }
     return null;
+  }
+
+  renderPhotoItems(items: String, index: number) {
+    return (
+      <Image key={index} source={{ uri: items }} alt="not found" style={styles.photo} />
+    );
+  }
+
+  renderPhotos() {
+    return (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        { this.state.photos.map((item, index) => this.renderPhotoItems(item, index)) }
+      </ScrollView>
+    );
   }
 
   renderSelectedPlace() {
@@ -505,8 +731,30 @@ export default class Home extends React.Component<Props, State> {
     }
 
     if (tempPlace) {
+      const isFavourite = this.checkFavourite(tempPlace.name);
+      let photoMessage = '';
+
+      if (!this.props.favMode) {
+        if (this.props.photos.length > 0) {
+          photoMessage = 'SHOW PHOTOS';
+        } else {
+          photoMessage = 'NO PHOTOS FOUND';
+        }
+
+        if (this.state.isFetchingPhoto) {
+          photoMessage = 'FETCHING PHOTOS';
+        } else if (this.state.isFetched) {
+          if (this.state.photos.length > 0) {
+            photoMessage = 'HIDE PHOTO';
+          } else {
+            photoMessage = 'NO PHOTOS FOUND';
+          }
+        }
+      }
+
       return (
         <View style={styles.textContainer}>
+          {this.props.favMode ? null : this.renderFavButton(isFavourite, tempPlace)}
           <Text style={styles.text}>{tempPlace.name}</Text>
           <Text
             numberOfLines={1}
@@ -516,13 +764,26 @@ export default class Home extends React.Component<Props, State> {
           </Text>
           {this.renderRating(tempPlace.rating)}
           <View style={styles.separator} />
-          <Touchable
-            onPress={() => this.handleNavigate()}
-          >
-            <View style={styles.navContainer}>
-              <Text style={styles.navText}>GET DIRECTIONS</Text>
+          <View style={styles.navContainer}>
+            <View style={{ flex: 1, alignItems: 'flex-start' }}>
+              <F8Touchable onPress={() => this.fetchPhotoClicked()}>
+                <Text style={
+                  this.props.photos.length > 0 ? styles.navText : { color: colors.disabledColor }
+                }
+                >
+                  {photoMessage}
+                </Text>
+              </F8Touchable>
             </View>
-          </Touchable>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <F8Touchable
+                onPress={() => this.handleNavigate()}
+              >
+                <Text style={styles.navText}>GET DIRECTIONS</Text>
+              </F8Touchable>
+            </View>
+          </View>
+          {this.state.displayPhotos ? this.renderPhotos() : null}
         </View>
       );
     }
@@ -536,53 +797,60 @@ export default class Home extends React.Component<Props, State> {
     );
   }
 
+  renderFavButton(isFavourite: boolean, place: Place) {
+    return (
+      <F8Touchable onPress={() => this.favButtonPressed(isFavourite, place)}>
+        <Icon
+          name="favorite"
+          size={30}
+          color={isFavourite ? 'rgb(255, 50, 50)' : colors.disabledColor}
+          style={{ position: 'absolute', right: 7, top: 7 }}
+        />
+      </F8Touchable>
+    );
+  }
+
   renderMarkers() {
+    let place = null;
     let color;
+
     if (!this.props.favMode) {
-      const { places } = this.props;
-      const { index } = this.props;
-      color = colors.accentColor;
-      return places.map((place, i) => {
-        const { latitude, longitude, place_id: id } = place;
-        if (index === i) {
-          color = colors.selectedPinColor;
-        } else {
-          color = colors.accentColor;
-        }
-        return (
-          <MapView.Marker
-            coordinate={{ latitude, longitude }}
-            identifier={id}
-            pinColor={color}
-            title={place.name}
-            key={id}
-            onPress={() => this.markerSelected(place, latitude, longitude)}
-          />
-        );
-      });
+      if (this.state.extendedIndex !== -10) {
+        const places = this.props.extPlaces;
+        const index = this.state.extendedIndex;
+        color = colors.accentColor;
+        place = places[index];
+      } else if (this.state.focusedIndex !== -10) {
+        const places = this.props.focPlaces;
+        const index = this.state.focusedIndex;
+        color = colors.accentColor;
+        place = places[index];
+      } else if (this.props.index !== null) {
+        const { places } = this.props;
+        const { index } = this.props;
+        color = colors.accentColor;
+        place = places[index];
+      }
     } else if (this.props.favMode) {
-      const { favouritePlaces } = this.state;
-      const { favouriteIndex } = this.state;
-      return favouritePlaces.map((place, i) => {
-        const { latitude, longitude } = place;
-        let { place_id: id } = place;
-        id += 'fav';
-        if (favouriteIndex === i) {
-          color = colors.selectedPinColor;
-        } else {
-          color = colors.accentColor2;
-        }
-        return (
-          <MapView.Marker
-            coordinate={{ latitude, longitude }}
-            identifier={id}
-            pinColor={color}
-            title={place.name}
-            key={id}
-            onPress={() => this.markerSelected(place, latitude, longitude)}
-          />
-        );
-      });
+      if (this.state.favouriteIndex !== -10) {
+        const { favouritePlaces } = this.state;
+        const { favouriteIndex } = this.state;
+        color = colors.accentColor2;
+        place = favouritePlaces[favouriteIndex];
+      }
+    }
+    if (place !== null) {
+      const { latitude, longitude, place_id: id } = place;
+      return (
+        <MapView.Marker
+          coordinate={{ latitude, longitude }}
+          identifier={id}
+          pinColor={color}
+          title={place.name}
+          key={id}
+          onPress={() => this.markerSelected()}
+        />
+      );
     }
     return null;
   }
@@ -607,10 +875,51 @@ export default class Home extends React.Component<Props, State> {
           pinColor={color}
           title={place.name}
           key={id}
-          onPress={() => this.markerSelected(place, latitude, longitude)}
+          onPress={() => this.markerSelected()}
         />
       );
     });
+  }
+
+  renderFavBar() {
+    if (this.props.places.length > 0) {
+      let message;
+      let message2 = '';
+      let title = '';
+      if (!this.props.favMode) {
+        message = 'Choose from favourite list';
+      } else {
+        title = this.props.favChoosed.toUpperCase();
+        message = 'Searching ';
+        message2 = ' list';
+      }
+      return (
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            height: 50,
+            backgroundColor: this.props.favMode ? colors.subAccentColor2 : colors.subAccentColor,
+          }}
+          onPress={() => this.openFavList()}
+        >
+          <Text style={{
+            color: this.props.favMode ? '#808080' : '#FFFFFF',
+            marginLeft: 20,
+            marginTop: 13,
+            fontSize: 15,
+            }}
+          >
+            { message }
+            <Text style={{ fontWeight: 'bold' }}>{ title }</Text>
+            { message2 }
+          </Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return null;
   }
 
   // render default floating action button (pink)
@@ -618,9 +927,10 @@ export default class Home extends React.Component<Props, State> {
     if (this.props.places.length) {
       return (
         <FloatingActionButton
-          position="center"
+          position="right"
           onPress={() => this.getNextPlace()}
           buttonColor={colors.accentColor}
+          pushed={!!this.props.favMenu}
         >
           <Icon name="local-dining" size={24} color="#fff" />
         </FloatingActionButton>
@@ -634,42 +944,49 @@ export default class Home extends React.Component<Props, State> {
     if (this.props.places.length) {
       return (
         <FloatingActionButton
-          position="center"
+          position="right"
           onPress={() => this.getNextFavourite()}
           buttonColor={colors.accentColor2}
+          pushed={!!this.props.favMenu}
         >
-          <Icon name="local-dining" size={24} color="#FFF" />
+          <Icon name="shuffle" size={24} color="#FFF" />
         </FloatingActionButton>
       );
     }
     return null;
   }
 
-  // Left Corner Action Button
-  renderCABLeft() {
+  renderExtendPill() {
     if (this.props.places.length) {
       return (
-        <CornerActionButton
-          position="left"
-          onPress={this.props.extPlaces.length > 0 ? () => this.fall() : () => this.escalate()}
-          mode={this.props.extPlaces.length > 0 ? 'contract' : 'expand'}
-        />
+        <FloatingActionButton
+          orientation="up"
+          position="topRight"
+          onPress={this.state.range.desc !== 'extended' ? () => this.escalate() : () => null}
+          buttonColor="#FFF"
+          pushed={!!this.props.favMenu}
+          disabled={!this.state.range.desc !== 'extended'}
+        >
+          <Icon name="add" size={20} color={this.state.range.desc !== 'extended' ? colors.accentColor : colors.disabledColor} />
+        </FloatingActionButton>
       );
     }
     return null;
   }
 
-  // Right Corner Action Button
-  renderCABRight() {
+  renderContractPill() {
     if (this.props.places.length) {
       return (
-        <CornerActionButton
-          position="right"
-          onPress={
-            this.props.favMode ? () => this.endFavMode() : () => this.openFavList()
-          }
-          mode={this.props.favMode ? 'fav' : 'default'}
-        />
+        <FloatingActionButton
+          orientation="down"
+          position="bottomRight"
+          onPress={this.state.range.desc !== 'focused' ? () => this.fall() : () => null}
+          buttonColor="#FFF"
+          pushed={!!this.props.favMenu}
+          disabled={!this.state.range.desc !== 'focused'}
+        >
+          <Icon name="remove" size={20} color={this.state.range.desc !== 'focused' ? colors.accentColor : colors.disabledColor} />
+        </FloatingActionButton>
       );
     }
     return null;
@@ -696,6 +1013,14 @@ export default class Home extends React.Component<Props, State> {
     return null;
   }
 
+  renderAreaText() {
+    return (
+      <View style={styles.areaTextContainer}>
+        <Text style={styles.areaText}>{this.state.range.value}m</Text>
+      </View>
+    );
+  }
+
   renderComponents() {
     if (this.state.search) {
       return (
@@ -709,9 +1034,11 @@ export default class Home extends React.Component<Props, State> {
       <View style={{ flex: 1 }}>
         {<SearchBar onPress={() => this.setState({ search: true })} />}
         {this.renderSelectedPlace()}
+        {this.state.maxIndex > 10 && !this.props.favMode ? this.renderExtendPill() : null}
+        {this.state.maxIndex > 10 && !this.props.favMode ? this.renderContractPill() : null}
+        {this.state.maxIndex > 10 && !this.props.favMode ? this.renderAreaText() : null}
         {this.props.favMode ? this.renderFAB2() : this.renderFAB()}
-        {this.state.renderCABLeft && !this.props.favMode ? this.renderCABLeft() : null}
-        {this.renderCABRight()}
+        {this.renderFavBar()}
       </View>
     );
   }
@@ -720,7 +1047,6 @@ export default class Home extends React.Component<Props, State> {
     return (
       <View style={styles.container}>
         <Splashscreen />
-        <Restaurant place={this.state.currentPlace} />
         <FavList />
         <MapView
           ref={(c) => { this.map = c; }}
@@ -735,7 +1061,7 @@ export default class Home extends React.Component<Props, State> {
           }}
           style={styles.map}
         >
-          {this.state.extendedIndex === -10 ? this.renderMarkers() : this.renderExtMarkers()}
+          { this.renderMarkers() }
         </MapView>
         {this.renderLoading()}
         {this.renderComponents()}

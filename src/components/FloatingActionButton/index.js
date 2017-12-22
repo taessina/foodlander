@@ -18,8 +18,11 @@ const buttonBackground = Platform.OS === 'android' && Platform.Version >= 21 ?
 type Props = {
   onPress: Function,
   children: React.Node,
-  position: 'center' | 'left' | 'right',
+  position: 'center' | 'left' | 'right' | 'bottomRight' | 'topRight',
   buttonColor: string,
+  pushed: boolean,
+  orientation: 'default' | 'up' | 'down' | 'left' | 'right',
+  disabled: boolean,
 };
 
 type State = { animValue: Animated.Value, elevation: number };
@@ -28,6 +31,8 @@ export default class FloatingActionButton extends React.Component<Props, State> 
   static defaultProps = {
     position: 'center',
     buttonColor: 'white',
+    orientation: 'default',
+    disabled: false,
   };
 
   state = {
@@ -51,6 +56,21 @@ export default class FloatingActionButton extends React.Component<Props, State> 
     this.setState({ elevation });
   }
 
+  retrieveStyle(): Object {
+    switch (this.props.orientation) {
+      case 'up':
+        return styles.upPillContainer;
+      case 'down':
+        return styles.downPillContainer;
+      case 'left':
+        return styles.leftPillContainer;
+      case 'right':
+        return styles.rightPillContainer;
+      default:
+        return styles.buttonContainer;
+    }
+  }
+
   render() {
     const animations = {
       transform: [
@@ -65,11 +85,15 @@ export default class FloatingActionButton extends React.Component<Props, State> 
       elevation: this.state.elevation,
     };
     return (
-      <View style={[styles.container, styles[this.props.position]]}>
+      <View style={[
+        this.props.pushed ? styles.pushed : styles.default,
+        styles[this.props.position]]}
+      >
         <Animated.View
           style={[
             animations,
-            styles.buttonContainer,
+            this.retrieveStyle(),
+            this.props.disabled ? { borderColor: colors.disabledColor } : null,
             { backgroundColor: this.props.buttonColor },
           ]}
         >
@@ -79,7 +103,7 @@ export default class FloatingActionButton extends React.Component<Props, State> 
             onPressIn={() => this.elevate(12)}
             onPressOut={() => this.elevate(6)}
           >
-            <View style={styles.button}>
+            <View style={this.props.orientation === 'default' ? styles.button : styles.pillButton}>
               {this.props.children}
             </View>
           </Touchable>
