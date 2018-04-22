@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import styles from './style';
+import colors from '../../themes/color';
 import { actionCreators as placeActionCreators } from '../../redux/modules/place';
 
 type State = {
@@ -19,6 +20,7 @@ type Props = {
  doSetFavMode: Function,
  doSetFavChoosed: Function,
  doSetFav: Function,
+ favMode: boolean,
  visibility: boolean,
  favouriteList: Object[],
  favChoosed: string,
@@ -40,31 +42,38 @@ class FavList extends React.Component<Props, State> {
     this.props.doSetFav(false);
   }
 
-  handleBackButton() {
+  modeSwitch() {
+    this.hideMenu();
+    if (this.props.favMode) {
+      this.props.doSetFavMode(false);
+    }
+    this.props.doSetFavChoosed('');
+  }
+
+  hideMenu() {
     if (this.props.visibility) {
       this.props.doSetFav(false);
     }
+  }
 
+  handleBackButton() {
+    this.hideMenu();
     return false;
   }
 
   renderItems(count: number) {
+    const { title } = this.props.favouriteList[count];
     return (
       <TouchableHighlight key={count} onPress={() => this.onItemSelected(count)}>
         <View
-          style={{
-            width: '100%',
-                height: 100,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: count % 2 === 0 ? 'rgba(53,119,255,0.8)' : 'rgba(73,139,255,0.8)',
-                }}
+          style={[styles.itemBox, { backgroundColor: title === this.props.favChoosed ? '#D6EBFF' : '#FFFFFF' }]}
         >
-          <Text style={{
-            color: '#FFFFFF', fontSize: 30, fontWeight: 'bold',
-          }}
-          >{this.props.favouriteList[count].title}
-          </Text>
+          <View style={styles.titleBox}>
+            <Text style={styles.itemText}> {title} </Text>
+          </View>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={styles.itemText}> {this.props.favouriteList[count].items.length} </Text>
+          </View>
         </View>
       </TouchableHighlight>
     );
@@ -78,6 +87,38 @@ class FavList extends React.Component<Props, State> {
     return items;
   }
 
+  renderHeader() {
+    return (
+      <View
+        style={[
+          styles.headerBox,
+          { backgroundColor: this.props.favMode ? colors.subAccentColor2 : colors.subAccentColor },
+          ]}
+      >
+        <Text style={[
+          styles.headerText,
+          { color: this.props.favMode ? '#808080' : '#FFFFFF' },
+          ]}
+        >
+        Choose from favourite list
+        </Text>
+        <View style={styles.buttonBox} />
+        {this.props.favMode ? this.renderBackButton() : null}
+      </View>
+    );
+  }
+
+  renderBackButton() {
+    return (
+      <TouchableHighlight
+        onPress={() => this.modeSwitch()}
+        style={styles.backButtonStyle}
+      >
+        <Text style={styles.buttonTextStyle}>BACK</Text>
+      </TouchableHighlight>
+    );
+  }
+
   render() {
     return (
       <Modal
@@ -89,6 +130,7 @@ class FavList extends React.Component<Props, State> {
         <View style={styles.favContainer}>
           <View style={styles.favMainBox}>
             <ScrollView style={{ width: '100%' }}>
+              {this.renderHeader()}
               {this.renderFavItems()}
             </ScrollView>
           </View>

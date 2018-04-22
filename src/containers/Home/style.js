@@ -37,10 +37,9 @@ export default StyleSheet.create({
     fontSize: 16,
   },
   navContainer: {
-    flex: 1,
     height: 36,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   navText: {
     color: colors.primaryColor,
@@ -87,23 +86,28 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  resPhoto: {
-    width: 150,
-    height: 150,
-    margin: 10,
-    borderWidth: 1,
-    borderColor: '#000000',
+  photo: {
+    width: 130,
+    height: 130,
+    margin: 5,
   },
   favContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   favMainBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 350,
-    height: 500,
-    backgroundColor: 'rgba(204,238,255,0.8)',
+    width: '100%',
+    height: 260,
+    backgroundColor: '#FFFFFF',
+  },
+  areaTextContainer: {
+    position: 'absolute', bottom: 16, left: 16, justifyContent: 'flex-end', marginBottom: 50,
+  },
+  areaText: {
+    fontSize: 30,
+    color: 'rgba(150,150,150,0.8)',
   },
 });

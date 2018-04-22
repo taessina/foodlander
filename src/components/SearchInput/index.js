@@ -7,14 +7,12 @@ import SearchInput from './presenter';
 import { actionCreators as placeActionCreators } from '../../redux/modules/place';
 
 const AUTOCOMPLETE_API = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?';
-const query = {
-  key: Config.GOOGLE_MAPS_API_KEY,
-  types: 'geocode',
-};
 
 type Props = {
   onBack: Function,
   getPlacesNearArea: Function,
+  latitude: number,
+  longitude: number,
 };
 
 type State = {
@@ -22,6 +20,16 @@ type State = {
   prevText: string,
   suggestions: Array<any>,
 };
+
+function mapStateToProps(state) {
+  const { coordinate } = state.location;
+  if (coordinate) {
+    if (coordinate.latitude !== null) {
+      return { latitude: coordinate.latitude, longitude: coordinate.longitude };
+    }
+  }
+  return { latitude: 200, longitude: 200 };
+}
 
 class SearchInputContainer extends React.Component<Props, State> {
   state = { text: '', prevText: '', suggestions: [] };
@@ -35,9 +43,22 @@ class SearchInputContainer extends React.Component<Props, State> {
   }
 
   timer: number;
-
   fetchSuggestions = () => {
     const input = this.state.text;
+    let query;
+    if (this.props.latitude !== 200) {
+      query = {
+        key: Config.GOOGLE_MAPS_API_KEY,
+        types: 'geocode',
+        location: `${this.props.latitude}, ${this.props.longitude}`,
+        radius: 100000, // 100km search area
+      };
+    } else {
+      query = {
+        key: Config.GOOGLE_MAPS_API_KEY,
+        types: 'geocode',
+      };
+    }
     const params = { ...query, input };
     fetch(`${AUTOCOMPLETE_API}${querystring.stringify(params)}`)
       .then(response => response.json())
@@ -106,4 +127,4 @@ const mapDispatchToProps = {
   getPlacesNearArea: placeActionCreators.doGetPlacesNearArea,
 };
 
-export default connect(null, mapDispatchToProps)(SearchInputContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchInputContainer);

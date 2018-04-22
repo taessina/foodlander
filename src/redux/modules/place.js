@@ -28,7 +28,9 @@ type State = {
   fav: boolean;
   photos: String[];
   extPlaces: Array<Place>;
+  focPlaces: Array<Place>;
   listTitle: string;
+  range: number;
 };
 
 type SetPlacesAction = {
@@ -69,6 +71,11 @@ type ResetExtPlacesAction = {
   type: string;
 }
 
+type ResetFocPlacesAction = {
+  type: string;
+}
+
+
 type SetListTitleAction = {
   type: string;
   title: string;
@@ -84,49 +91,49 @@ type SetFavChoosedAction = {
   title: string,
 }
 
+type SetRangeAction = {
+  type: string,
+  range: number,
+}
+
 type Action = SetPlacesAction & SetAreaAction & SetModalAction & SetPhotosAction & HideModalAction &
 UpdateIndexAction & ResetExtPlacesAction & SetListTitleAction & SetFavChoosedAction &
-SetFavModeAction;
+SetFavModeAction & SetRangeAction;
 
 const PLACES_NEARBY_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?';
 const PLACES_DETAIL_API = 'https://maps.googleapis.com/maps/api/place/details/json?';
 const GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
 const key = Config.GOOGLE_MAPS_API_KEY;
 
-const query = {
-  key,
-  radius: 2000,
-};
+const defaultRange = 2000;
+const focusedRange = 500;
+const extendedRange = 4000;
 
-const restaurantsQuery = {
-  ...query,
-  types: 'restaurant',
-};
+function getQuery(queryType: number): Object {
+  return {
+    key,
+    radius: queryType,
+  };
+}
 
-const cafesQuery = {
-  ...query,
-  types: 'cafe',
-};
+function getRestaurantQuery(queryType: number): Object {
+  return {
+    ...getQuery(queryType),
+    types: 'restaurant',
+  };
+}
 
-// extendedQuery
-const extQuery = {
-  key,
-  radius: 4000,
-};
-
-const extRestaurantsQuery = {
-  ...extQuery,
-  types: 'restaurant',
-};
-
-const extCafesQuery = {
-  ...extQuery,
-  types: 'cafe',
-};
+function getCafesQuery(queryType: number): Object {
+  return {
+    ...getQuery(queryType),
+    types: 'cafe',
+  };
+}
 
 const SELETED_PLACE_SET = 'place/SELETED_PLACE_SET';
 const PLACES_SET = 'place/PLACES_SET';
 const EXT_PLACES_SET = 'place/EXT_PLACES_SET';
+const FOC_PLACES_SET = 'place/FOC_PLACES_SET';
 const AREA_SET = 'place/AREA_SET';
 const AREA_RESET = 'place/AREA_RESET';
 const SET_RES = 'place/RES_SELECTED';
@@ -135,9 +142,11 @@ const SET_PHOTOS = 'place/SET_PHOTOS';
 const DUMP_PHOTO = 'place/DUMP_PHOTO';
 const UPDATE_INDEX = 'place/UPDATE_INDEX';
 const EXT_RESET = 'place/EXT_RESET';
+const FOC_RESET = 'place/FOC_RESET';
 const SET_LIST_TITLE = 'place/SET_LIST_TITLE';
 const SET_FAV_MODE = 'place/SET_FAV_MODE';
 const SET_FAV_CHOOSED = 'place/SET_FAV_CHOOSED';
+const SET_RANGE = 'place/SET_RANGE';
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -165,6 +174,13 @@ function doSetPlaces(places: Array<Place>): SetPlacesAction {
 function doSetExtendedPlaces(places: Array<Place>): SetPlacesAction {
   return {
     type: EXT_PLACES_SET,
+    places,
+  };
+}
+
+function doSetFocusedPlaces(places: Array<Place>): SetPlacesAction {
+  return {
+    type: FOC_PLACES_SET,
     places,
   };
 }
@@ -228,6 +244,12 @@ function doResetExtPlaces(): ResetExtPlacesAction {
   };
 }
 
+function doResetFocPlaces(): ResetFocPlacesAction {
+  return {
+    type: FOC_RESET,
+  };
+}
+
 function doSetListTitle(title: string): SetListTitleAction {
   return {
     type: SET_LIST_TITLE,
@@ -249,6 +271,13 @@ function doSetFavChoosed(title: string): SetFavChoosedAction {
   };
 }
 
+function doSetRange(range: number): SetRangeAction {
+  return {
+    type: SET_RANGE,
+    range,
+  };
+}
+
 // fetch nearby places
 function fetchPlaces(params) {
   return fetch(`${PLACES_NEARBY_API}${querystring.stringify(params)}`)
@@ -267,11 +296,11 @@ function doGetNearbyPlaces({ latitude: lat, longitude: lng }: Object) {
     Promise.all([
       fetchPlaces({
         location: `${lat},${lng}`,
-        ...restaurantsQuery,
+        ...getRestaurantQuery(defaultRange),
       }),
       fetchPlaces({
         location: `${lat},${lng}`,
-        ...cafesQuery,
+        ...getCafesQuery(defaultRange),
       }),
     ]).then((results) => {
       const places = [...results[0], ...results[1]];
@@ -299,11 +328,11 @@ function doGetExtendedPlaces({ latitude: lat, longitude: lng }: Object) {
     Promise.all([
       fetchPlaces({
         location: `${lat},${lng}`,
-        ...extRestaurantsQuery,
+        ...getRestaurantQuery(extendedRange),
       }),
       fetchPlaces({
         location: `${lat},${lng}`,
-        ...extCafesQuery,
+        ...getCafesQuery(extendedRange),
       }),
     ]).then((results) => {
       const places = [...results[0], ...results[1]];
@@ -315,10 +344,44 @@ function doGetExtendedPlaces({ latitude: lat, longitude: lng }: Object) {
           ...place,
         };
       })));
+      dispatch(doSetRange(extendedRange));
     }).catch(() => {
       // Retry 5s later, inhibiting errors
       setTimeout(
         () => dispatch(doGetExtendedPlaces({ latitude: lat, longitude: lng })),
+        5000,
+      );
+    });
+  };
+}
+
+// get focused Places by calling fetch places
+function doGetFocusedPlaces({ latitude: lat, longitude: lng }: Object) {
+  return (dispatch: Function): void => {
+    Promise.all([
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...getRestaurantQuery(focusedRange),
+      }),
+      fetchPlaces({
+        location: `${lat},${lng}`,
+        ...getCafesQuery(focusedRange),
+      }),
+    ]).then((results) => {
+      const places = [...results[0], ...results[1]];
+      dispatch(doSetFocusedPlaces(places.map((place: Place) => {
+        const { lat: latitude, lng: longitude } = place.geometry.location;
+        return {
+          latitude,
+          longitude,
+          ...place,
+        };
+      })));
+      dispatch(doSetRange(focusedRange));
+    }).catch(() => {
+      // Retry 5s later, inhibiting errors
+      setTimeout(
+        () => dispatch(doGetFocusedPlaces({ latitude: lat, longitude: lng })),
         5000,
       );
     });
@@ -354,7 +417,7 @@ function doGetPlacesNearArea(keywords: Array<Object>) {
 }
 
 // when marker selected, fetch address_components, and photos
-function doMarkerSelected(id: String) {
+function doPlaceSelected(id: String) {
   return (dispatch: Function): void => {
     const params = { placeid: id, key };
     let listTitle = '';
@@ -363,15 +426,25 @@ function doMarkerSelected(id: String) {
       .then((data) => {
         if (data.status === 'OK') {
           dispatch(doSetRes(true));
-          const { photos: photoRef, address_components: address } = data.result;
+          const { address_components: address } = data.result;
+          let photoRef;
+          photoRef = data.result.photos;
+          if (photoRef === undefined) {
+            photoRef = [];
+          }
           address.map((components) => {
             if ((components.types[0] === 'locality') && (components.types[1] === 'political')) {
               listTitle = components.long_name;
             }
             return null;
           });
-          const tempPhotoRef = photoRef.map(photo => photo.photo_reference);
-          dispatch(doSetPhotos(tempPhotoRef));
+          let tempPhotoRef = [];
+          tempPhotoRef = photoRef.map(photo => photo.photo_reference);
+          if (tempPhotoRef.length > 0) {
+            dispatch(doSetPhotos(tempPhotoRef));
+          } else {
+            dispatch(doDumpPhoto());
+          }
           dispatch(doSetListTitle(listTitle));
           return data.result;
         }
@@ -390,9 +463,11 @@ const initialState = {
   fav: false,
   photos: [],
   extPlaces: [], // extended places
+  focPlaces: [],
   listTitle: '',
   favMode: false,
   favChoosed: '',
+  range: 2000, // default radius
 };
 
 function applySetPlaces(state: State, action: SetPlacesAction) {
@@ -464,7 +539,7 @@ function applyUpdateIndex(state: State, action: UpdateIndexAction) {
 // store extended places into state array
 function applySetExtendedPlaces(state: State, action: SetPlacesAction) {
   const { places } = action;
-  const newPlaces = places.filter((place, index, array) => {
+  const extended = places.filter((place, index, array) => {
     if (place.permanently_closed) {
       return false;
     } else if (place.opening_hours && !place.opening_hours.open_now) {
@@ -478,28 +553,37 @@ function applySetExtendedPlaces(state: State, action: SetPlacesAction) {
     return false;
   });
 
-  // extract the extended places
-  const extended = [];
-  for (let i = 0; i < newPlaces.length; i += 1) {
-    const { place_id: newPlace } = newPlaces[i];
-    let found = false;
-    for (let u = 0; u < state.places.length; u += 1) {
-      const { place_id: prevPlace } = state.places[u];
-      if (newPlace === prevPlace) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      extended.push(newPlaces[i]);
-    }
-  }
   return { ...state, extPlaces: shuffle(extended) };
+}
+
+// store focused places into state array
+function applySetFocusedPlaces(state: State, action: SetPlacesAction) {
+  const { places } = action;
+  const focused = places.filter((place, index, array) => {
+    if (place.permanently_closed) {
+      return false;
+    } else if (place.opening_hours && !place.opening_hours.open_now) {
+      return false;
+    }
+
+    if (array.findIndex(p => p.place_id === place.place_id) === index) {
+      return true;
+    }
+
+    return false;
+  });
+
+  return { ...state, focPlaces: shuffle(focused) };
 }
 
 // empty extended places array
 function applyResetExtPlaces(state: State) {
   return { ...state, extPlaces: [] };
+}
+
+// empty focused places array
+function applyResetFocPlaces(state: State) {
+  return { ...state, focPlaces: [] };
 }
 
 // change list title to current list title
@@ -515,6 +599,11 @@ function applySetFavMode(state: State, action: SetFavModeAction) {
 // store choosed favourite list title
 function applySetFavChoosed(state: State, action: SetFavChoosedAction) {
   return { ...state, favChoosed: action.title };
+}
+
+// change range value
+function applySetRange(state: State, action: SetRangeAction) {
+  return { ...state, range: action.range };
 }
 
 function reducer(state: State = initialState, action: Action): State {
@@ -539,14 +628,20 @@ function reducer(state: State = initialState, action: Action): State {
       return applyUpdateIndex(state, action);
     case EXT_PLACES_SET:
       return applySetExtendedPlaces(state, action);
+    case FOC_PLACES_SET:
+      return applySetFocusedPlaces(state, action);
     case EXT_RESET:
       return applyResetExtPlaces(state);
+    case FOC_RESET:
+      return applyResetFocPlaces(state);
     case SET_LIST_TITLE:
       return applySetListTitle(state, action);
     case SET_FAV_MODE:
       return applySetFavMode(state, action);
     case SET_FAV_CHOOSED:
       return applySetFavChoosed(state, action);
+    case SET_RANGE:
+      return applySetRange(state, action);
     default:
       return state;
   }
@@ -557,13 +652,15 @@ const actionCreators = {
   doGetNextPlace,
   doGetPlacesNearArea,
   doResetArea,
-  doMarkerSelected,
+  doPlaceSelected,
   doSetRes,
   doSetFav,
   doDumpPhoto,
   doUpdateIndex,
   doGetExtendedPlaces,
+  doGetFocusedPlaces,
   doResetExtPlaces,
+  doResetFocPlaces,
   doSetListTitle,
   doSetFavMode,
   doSetFavChoosed,
