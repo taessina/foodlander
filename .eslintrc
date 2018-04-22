@@ -1,21 +1,82 @@
 {
+  "root": true,
+
   "parser": "babel-eslint",
-  "plugins":[
-    "flowtype"
-  ],
+
+  "env": {
+    "es6": true,
+    "jasmine": true,
+    "browser": true
+  },
+
+  "plugins": ["flowtype", "react"],
+
   "extends": [
     "airbnb",
-    "plugin:flowtype/recommended"
+    "plugin:flowtype/recommended",
+    "prettier",
+    "prettier/flowtype",
+    "prettier/react"
   ],
-  "rules": {
-    "react/jsx-filename-extension": 0,
-    "class-methods-use-this": 0
-  },
+
   "globals": {
-    "__DEV__": true
+    "__DEV__": true,
+    "__dirname": false,
+    "__fbBatchedBridgeConfig": false,
+    "alert": false,
+    "cancelAnimationFrame": false,
+    "cancelIdleCallback": false,
+    "clearImmediate": true,
+    "clearInterval": false,
+    "clearTimeout": false,
+    "console": false,
+    "document": false,
+    "escape": false,
+    "Event": false,
+    "EventTarget": false,
+    "exports": false,
+    "fetch": false,
+    "FormData": false,
+    "global": false,
+    "jest": false,
+    "Map": true,
+    "module": false,
+    "navigator": false,
+    "process": false,
+    "Promise": true,
+    "requestAnimationFrame": true,
+    "requestIdleCallback": true,
+    "require": false,
+    "Set": true,
+    "setImmediate": true,
+    "setInterval": false,
+    "setTimeout": false,
+    "window": false,
+    "XMLHttpRequest": false,
+    "pit": false
   },
-  "env": {
-    "browser": true,
-    "jest": true
+
+  "rules": {
+    "class-methods-use-this": 0,
+    "react/jsx-filename-extension": 0,
+    "react/require-default-props": 0,
+    "react/no-array-index-key": 0,
+    "function-paren-newline": ["error", "consistent"],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ]
+  },
+
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".android.js", ".ios.js"]
+      }
+    }
   }
 }

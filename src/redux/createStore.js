@@ -7,8 +7,9 @@ import { middleware as reduxPackMiddleware } from 'redux-pack';
 import { createLogger } from 'redux-logger';
 
 import reducers, { blacklist } from './modules';
+import { middleware as reactNavigationReduxMiddleware } from './react-navigation';
 
-const isDebuggingInChrome = __DEV__ && !!window.navigator.userAgent;
+const isDebuggingInChrome = __DEV__ && !!(window && window.navigator && window.navigator.userAgent);
 
 const logger = createLogger({
   predicate: () => isDebuggingInChrome,
@@ -23,7 +24,14 @@ const config = {
 };
 
 export default function configureStore() {
-  const enhancer = compose(applyMiddleware(thunk, reduxPackMiddleware, logger));
+  let enhancer;
+  if (__DEV__) {
+    enhancer = compose(
+      applyMiddleware(reactNavigationReduxMiddleware, thunk, reduxPackMiddleware, logger)
+    );
+  } else {
+    enhancer = compose(applyMiddleware(reactNavigationReduxMiddleware, thunk, reduxPackMiddleware));
+  }
   const store = createStore(persistCombineReducers(config, reducers), enhancer);
   const persistor = persistStore(store);
   // persistor.purge();

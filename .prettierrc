@@ -1,0 +1,21 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "parser": "json",
+  "trailingComma": "es5",
+  "noSemi": true,
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "parser": "babylon"
+      }
+    },
+    {
+      "files": "*.css",
+      "options": {
+        "parser": "json"
+      }
+    }
+  ]
+}
