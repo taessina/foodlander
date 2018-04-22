@@ -26,7 +26,7 @@ export default function configureStore() {
   const enhancer = compose(applyMiddleware(thunk, reduxPackMiddleware, logger));
   const store = createStore(persistCombineReducers(config, reducers), enhancer);
   const persistor = persistStore(store);
-  persistor.purge();
+  // persistor.purge();
   if (isDebuggingInChrome) {
     window.store = store;
   }
